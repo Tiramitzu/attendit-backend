@@ -55,24 +55,3 @@ func UserAttendancesByCompany(c *gin.Context) {
 
 	c.JSON(http.StatusOK, attendances)
 }
-
-func CreateAttendance(c *gin.Context) {
-	userId, _ := c.Get("userId")
-	user, _ := services.FindUserById(userId.(primitive.ObjectID))
-	companyId := c.Param("companyId")
-	objectId, err := primitive.ObjectIDFromHex(companyId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
-		return
-	}
-
-	// Check if user is in the company
-	companies := services.FindCompaniesByUserId(user.ID)
-	for _, company := range *companies {
-		if company.ID == objectId {
-			attendance, _ := services.CreateAttendance(user.ID, objectId, c.ClientIP())
-			c.JSON(http.StatusOK, attendance)
-			return
-		}
-	}
-}

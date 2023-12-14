@@ -1,10 +1,8 @@
 package services
 
 import (
-	"errors"
-	"time"
-
 	db "attendit/backend/models/db"
+	"errors"
 
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
@@ -53,7 +51,7 @@ func FindUserByEmail(email string) (*db.User, error) {
 	user := &db.User{}
 	err := mgm.Coll(user).First(bson.M{"email": email}, user)
 	if err != nil {
-		return nil, errors.New("304: Not Modified")
+		return nil, errors.New("Email and password don't match")
 	}
 
 	return user, nil
@@ -84,16 +82,6 @@ func FindAttendanceByCompany(companyId primitive.ObjectID) (*db.Attendance, erro
 	err := mgm.Coll(attendance).First(bson.M{"companyId": companyId}, attendance)
 	if err != nil {
 		return nil, errors.New("304: Not Modified")
-	}
-
-	return attendance, nil
-}
-
-func CreateAttendance(userId primitive.ObjectID, companyId primitive.ObjectID, ipAddress string) (*db.Attendance, error) {
-	attendance := db.NewAttendance(userId, companyId, ipAddress, time.DateTime)
-	err := mgm.Coll(attendance).Create(attendance)
-	if err != nil {
-		return nil, errors.New("cannot create new attendance")
 	}
 
 	return attendance, nil

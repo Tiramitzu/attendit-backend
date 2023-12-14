@@ -85,22 +85,22 @@ func Login(c *gin.Context) {
 	user, err := services.FindUserByEmail(requestBody.Email)
 	if err != nil {
 		response.Message = err.Error()
-		response.SendResponse(c)
+		response.SendErrorResponse(c)
 		return
 	}
 
 	// check hashed password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(requestBody.Password))
 	if err != nil {
-		response.Message = "email and password don't match"
-		response.SendResponse(c)
+		response.Message = "Email and password don't match"
+		response.SendErrorResponse(c)
 		return
 	}
 
 	accessToken, err := services.GetTokenById(user.ID)
 	if err != nil {
 		response.Message = err.Error()
-		response.SendResponse(c)
+		response.SendErrorResponse(c)
 		return
 	}
 

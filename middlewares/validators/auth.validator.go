@@ -29,8 +29,7 @@ func LoginValidator() gin.HandlerFunc {
 		_ = c.ShouldBindBodyWith(&loginRequest, binding.JSON)
 
 		if err := loginRequest.Validate(); err != nil {
-			models.SendErrorResponse(c, http.StatusBadRequest, err.Error())
-			return
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		}
 
 		c.Next()

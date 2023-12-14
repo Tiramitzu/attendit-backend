@@ -32,6 +32,31 @@ func (a RegisterRequest) Validate() error {
 	)
 }
 
+type CheckInRequest struct {
+	IpAddress string `json:"ipAddress"`
+	Date      string `json:"date"`
+	Status    string `json:"status"`
+	CheckIn   string `json:"checkIn"`
+}
+
+func (a CheckInRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.IpAddress, validation.Required),
+		validation.Field(&a.Date, validation.Required),
+		validation.Field(&a.Status, validation.Required),
+	)
+}
+
+type CheckOutRequest struct {
+	CheckOut string `json:"checkOut"`
+}
+
+func (a CheckOutRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.CheckOut, validation.Required),
+	)
+}
+
 type CreateCompanyRequest struct {
 	Author       string   `json:"author"`
 	Name         string   `json:"name"`

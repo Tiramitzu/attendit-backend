@@ -1,0 +1,98 @@
+package controllers
+
+import (
+	"attendit/backend/models"
+	db "attendit/backend/models/db"
+	"attendit/backend/services"
+	"github.com/gin-gonic/gin/binding"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+func AttendanceCheckIn(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
+	var requestBody models.CheckInRequest
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+
+	userIdHex := c.Param("userId")
+	userId, err := primitive.ObjectIDFromHex(userIdHex)
+	if err != nil {
+		response.Message = "Error converting user ID"
+		response.SendErrorResponse(c)
+		return
+	}
+	user, err := services.FindUserById(userId)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	companyIdHex := c.Param("companyId")
+	companyId, err := primitive.ObjectIDFromHex(companyIdHex)
+	if err != nil {
+		response.Message = "Error converting company ID"
+		response.SendErrorResponse(c)
+		return
+	}
+	company, err := services.FindCompanyById(companyId)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	attendance := db.NewAttendance(user.ID, company.ID, requestBody.IpAddress, requestBody.Date, requestBody.Status, requestBody.CheckIn, "")
+	newAttendance, err := services.AttendanceCheckIn(attendance)
+
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	c.JSON(http.StatusOK, newAttendance)
+}
+
+func AttendanceCheckOut(c *gin.Context) {
+	var requestBody models.CheckOutRequest
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
+	attendanceIdHex := c.Param("attendanceId")
+	attendanceId, err := primitive.ObjectIDFromHex(attendanceIdHex)
+	if err != nil {
+		response.Message = "Error converting attendance ID"
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	attendance, _ := services.FindAttendanceById(attendanceId)
+
+	if attendance == nil {
+		response.Message = "Attendance not found"
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	attendance.CheckOut = requestBody.CheckOut
+	updatedAttendance, err := services.AttendanceCheckOut(attendance)
+
+	if err != nil {
+		response.Message = "Attendance failed"
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedAttendance)
+}

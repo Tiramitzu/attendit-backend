@@ -3,6 +3,7 @@ package services
 import (
 	db "attendit/backend/models/db"
 	"context"
+	"github.com/kamva/mgm/v3/field"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -21,16 +22,16 @@ func FindCompaniesByUserId(userId primitive.ObjectID) *[]db.Company {
 
 	companies := &[]db.Company{}
 	for _, companyId := range user.Companies {
-		company, _ := FindCompanyById(companyId)
+		company, _ := GetCompanyById(companyId)
 		*companies = append(*companies, *company)
 	}
 
 	return companies
 }
 
-func FindCompanyById(companyId primitive.ObjectID) (*db.Company, error) {
+func GetCompanyById(companyId primitive.ObjectID) (*db.Company, error) {
 	company := &db.Company{}
-	err := mgm.Coll(company).FindByID(companyId, company)
+	err := mgm.Coll(company).First(bson.M{field.ID: companyId}, company)
 	if err != nil {
 		return nil, err
 	}
@@ -137,4 +138,34 @@ func DeleteCompany(companyId primitive.ObjectID) error {
 	}
 
 	return nil
+}
+
+func CreateInvitation(invitation *db.Invitation) (*db.Invitation, error) {
+	db.NewInvitation(invitation.Author, invitation.UserID, invitation.CompanyID, invitation.Role)
+	err := mgm.Coll(invitation).Create(invitation)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return invitation, nil
+}
+
+func FindInvitationById(invitationId primitive.ObjectID) (*db.Invitation, error) {
+	invitation := &db.Invitation{}
+	err := mgm.Coll(invitation).FindByID(invitationId, invitation)
+	if err != nil {
+		return nil, err
+	}
+
+	return invitation, nil
+}
+
+func UpdateInvitation(invitation *db.Invitation) (*db.Invitation, error) {
+	err := mgm.Coll(invitation).Update(invitation)
+	if err != nil {
+		return nil, err
+	}
+
+	return invitation, nil
 }

@@ -12,7 +12,11 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	{
 		users.GET("/@me", controllers.GetCurrentUser)
 		users.GET("/@me/companies", controllers.GetCurrentUserCompanies)
-		users.GET("/@me/attendances/:companyId", controllers.UserAttendancesByCompany)
+		users.GET(
+			"/@me/attendances/:companyId",
+			validators.PathCompanyIdValidator(),
+			controllers.UserAttendancesByCompany,
+		)
 		users.POST(
 			"/@me/attendances/:companyId",
 			validators.PathCompanyIdValidator(),
@@ -26,5 +30,10 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.AttendanceCheckOut,
 		)
 		users.PATCH("/@me", controllers.ModifyCurrentUser)
+		users.DELETE(
+			"/@me/companies/:companyId",
+			validators.PathCompanyIdValidator(),
+			controllers.RemoveUserFromCompany,
+		)
 	}
 }

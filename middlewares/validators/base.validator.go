@@ -24,6 +24,20 @@ func PathIdValidator() gin.HandlerFunc {
 	}
 }
 
+func PathUserIdValidator() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		id := c.Param("userId")
+		err := validation.Validate(id, is.MongoID)
+		if err != nil {
+			models.SendErrorResponse(c, http.StatusBadRequest, "Invalid userId: "+id)
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func PathCompanyIdValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 

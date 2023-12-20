@@ -15,6 +15,7 @@ type User struct {
 	UserName         string               `json:"username" bson:"username"`
 	MailVerified     bool                 `json:"mail_verified" bson:"mail_verified"`
 	Companies        []primitive.ObjectID `json:"companies" bson:"companies"`
+	Invitations      []primitive.ObjectID `json:"invitations" bson:"invitations"`
 }
 
 type UserClaims struct {

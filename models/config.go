@@ -10,6 +10,9 @@ type EnvConfig struct {
 	ServerAddr                 string `mapstructure:"SERVER_ADDR"`
 	MongodbUri                 string `mapstructure:"MONGO_URI"`
 	MongodbDatabase            string `mapstructure:"MONGO_DATABASE"`
+	UseRedis                   bool   `mapstructure:"USE_REDIS"`
+	RedisDefaultAddr           string `mapstructure:"REDIS_DEFAULT_ADDR"`
+	RedisDefaultPassword       string `mapstructure:"REDIS_DEFAULT_PASSWORD"`
 	JWTSecretKey               string `mapstructure:"JWT_SECRET"`
 	JWTAccessExpirationMinutes int    `mapstructure:"JWT_ACCESS_EXPIRATION_MINUTES"`
 	JWTRefreshExpirationDays   int    `mapstructure:"JWT_REFRESH_EXPIRATION_DAYS"`
@@ -23,6 +26,10 @@ func (config *EnvConfig) Validate() error {
 
 		validation.Field(&config.MongodbUri, validation.Required),
 		validation.Field(&config.MongodbDatabase, validation.Required),
+
+		validation.Field(&config.UseRedis, validation.Required),
+		validation.Field(&config.RedisDefaultAddr, validation.Required),
+		validation.Field(&config.RedisDefaultPassword, validation.Required),
 
 		validation.Field(&config.JWTSecretKey, validation.Required),
 		validation.Field(&config.JWTAccessExpirationMinutes, validation.Required),

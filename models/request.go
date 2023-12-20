@@ -2,6 +2,7 @@ package models
 
 import (
 	db "attendit/backend/models/db"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -82,6 +83,20 @@ type InsertMembersToCompanyRequest struct {
 func (a InsertMembersToCompanyRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Members, validation.Required),
+	)
+}
+
+type CreateInvitationRequest struct {
+	UserID    primitive.ObjectID `json:"userId"`
+	CompanyID primitive.ObjectID `json:"companyId"`
+	Role      string             `json:"role"`
+}
+
+func (a CreateInvitationRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.UserID, validation.Required),
+		validation.Field(&a.CompanyID, validation.Required),
+		validation.Field(&a.Role, validation.Required),
 	)
 }
 

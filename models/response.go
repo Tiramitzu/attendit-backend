@@ -1,10 +1,8 @@
 package models
 
 import (
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 // Response Base response
@@ -16,11 +14,11 @@ type Response struct {
 }
 
 func (response *Response) SendResponse(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": strconv.Itoa(http.StatusOK) + ": OK"})
+	c.AbortWithStatusJSON(response.StatusCode, response)
 }
 
 func (response *Response) SendErrorResponse(c *gin.Context) {
-	c.JSON(response.StatusCode, gin.H{"message": response.Message})
+	c.AbortWithStatusJSON(response.StatusCode, response)
 }
 
 func SendResponseData(c *gin.Context, data any) {

@@ -86,3 +86,50 @@ func FindAttendanceByCompany(companyId primitive.ObjectID) (*db.Attendance, erro
 
 	return attendance, nil
 }
+
+func RemoveUserFromCompany(companyId primitive.ObjectID, userId primitive.ObjectID) error {
+	company := &db.Company{}
+	user := &db.User{}
+	member := &db.Member{}
+
+	err := mgm.Coll(company).FindByID(companyId, company)
+	if err != nil {
+		return errors.New("304: Not Modified")
+	}
+
+	err = mgm.Coll(user).FindByID(userId, user)
+	if err != nil {
+		return errors.New("304: Not Modified")
+	}
+
+	err = mgm.Coll(member).First(bson.M{"companyId": companyId, "userId": userId}, member)
+	if err != nil {
+		return errors.New("304: Not Modified")
+	}
+
+	for i, m := range company.Members {
+		if m == *member {
+			company.Members = append(company.Members[:i], company.Members[i+1:]...)
+			break
+		}
+	}
+
+	for i, id := range user.Companies {
+		if id == companyId {
+			user.Companies = append(user.Companies[:i], user.Companies[i+1:]...)
+			break
+		}
+	}
+
+	err = mgm.Coll(user).Update(user)
+	if err != nil {
+		return errors.New("304: Not Modified")
+	}
+
+	err = mgm.Coll(company).Update(company)
+	if err != nil {
+		return errors.New("304: Not Modified")
+	}
+
+	return nil
+}

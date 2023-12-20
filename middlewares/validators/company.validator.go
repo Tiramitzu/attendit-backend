@@ -35,3 +35,17 @@ func InsertMembersToCompanyValidator() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func CreateInvitationValidator() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var createInvitationRequest models.CreateInvitationRequest
+		_ = c.ShouldBindBodyWith(&createInvitationRequest, binding.JSON)
+
+		if err := createInvitationRequest.Validate(); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		}
+
+		c.Next()
+	}
+}

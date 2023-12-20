@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +42,7 @@ func AttendanceCheckIn(c *gin.Context) {
 		response.SendErrorResponse(c)
 		return
 	}
-	company, err := services.FindCompanyById(companyId)
+	company, err := services.GetCompanyById(companyId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -95,4 +96,18 @@ func AttendanceCheckOut(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, updatedAttendance)
+}
+
+func UserAttendancesByCompany(c *gin.Context) {
+	userId, _ := c.Get("userId")
+	user, _ := services.FindUserById(userId.(primitive.ObjectID))
+	companyId := c.Param("companyId")
+	objectId, err := primitive.ObjectIDFromHex(companyId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
+		return
+	}
+	attendances, _ := services.FindUserAttendanceByCompany(objectId, user.ID)
+
+	c.JSON(http.StatusOK, attendances)
 }

@@ -37,11 +37,6 @@ func CompanyRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			validators.CreateCompanyValidator(),
 			controllers.CreateCompany,
 		)
-		companies.PUT(
-			"/:id",
-			validators.InsertMembersToCompanyValidator(),
-			controllers.InsertMembersToCompany,
-		)
 		companies.PATCH(
 			"/:id",
 			validators.PathIdValidator(),

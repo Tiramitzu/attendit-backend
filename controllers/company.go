@@ -54,31 +54,26 @@ func GetCompany(c *gin.Context) {
 }
 
 func GetCompanyMembers(c *gin.Context) {
-	companyId := c.Param("id")
+	companyIdHex := c.Param("id")
 	page, _ := strconv.Atoi(c.Param("page"))
 	if page == 0 {
 		page = 1
 	}
-	objectId, err := primitive.ObjectIDFromHex(companyId)
+	companyId, err := primitive.ObjectIDFromHex(companyIdHex)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
 		return
 	}
-	users := services.FindMembersByCompanyId(objectId, page)
+
+	company, err := services.GetCompanyById(companyId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
+		return
+	}
+
+	users := services.FindMembersByCompanyId(company.ID, page)
 
 	c.JSON(http.StatusOK, users)
-}
-
-func GetCompanyAttendances(c *gin.Context) {
-	companyId := c.Param("id")
-	objectId, err := primitive.ObjectIDFromHex(companyId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
-		return
-	}
-	attendances, _ := services.FindAttendanceByCompany(objectId)
-
-	c.JSON(http.StatusOK, attendances)
 }
 
 func CreateCompany(c *gin.Context) {

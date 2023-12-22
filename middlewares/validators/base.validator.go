@@ -70,9 +70,9 @@ func PathPageValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		page := c.Param("page")
-		err := validation.Validate(page, validation.Required, validation.Min(1))
+		err := validation.Validate(page, is.Digit)
 		if err != nil {
-			models.SendErrorResponse(c, http.StatusBadRequest, "invalid page: "+page)
+			models.SendErrorResponse(c, http.StatusBadRequest, "Invalid page: "+page)
 			return
 		}
 

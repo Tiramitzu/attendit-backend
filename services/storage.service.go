@@ -63,6 +63,8 @@ func CheckRedisConnection() {
 	log.Println("Connected to Redis!")
 }
 
+// Company Cache
+
 func getCompanyCacheKey(companyId primitive.ObjectID) string {
 	return "req:cache:company:" + companyId.Hex()
 }

@@ -114,3 +114,43 @@ func UserAttendancesByCompany(c *gin.Context) {
 
 	c.JSON(http.StatusOK, attendances)
 }
+
+func GetCompanyAttendances(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
+	page, _ := strconv.Atoi(c.Param("page"))
+	if page == 0 {
+		page = 1
+	}
+
+	companyIdHex := c.Param("id")
+	companyId, err := primitive.ObjectIDFromHex(companyIdHex)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
+		return
+	}
+
+	attendances, err := services.GetCompanyAttendancesFromCache(companyId)
+	if err == nil {
+		models.SendResponseData(c, gin.H{"attendances": attendances, "cache": true})
+		return
+	}
+
+	attendances, err = services.GetAttendancesByCompany(companyId, page)
+
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	services.CacheCompanyAttendances(companyId, attendances)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"attendances": attendances}
+	response.SendResponse(c)
+}

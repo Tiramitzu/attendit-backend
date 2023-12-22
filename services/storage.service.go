@@ -92,3 +92,35 @@ func GetCompanyFromCache(companyId primitive.ObjectID) (*models.Company, error) 
 	err := GetRedisCache().Get(context.TODO(), companyCacheKey, note)
 	return note, err
 }
+
+// Attendances cache
+
+func getCompanyAttendancesCacheKey(companyId primitive.ObjectID) string {
+	return "req:cache:company:attendances:" + companyId.Hex()
+}
+
+func CacheCompanyAttendances(companyId primitive.ObjectID, attendances []*models.Attendance) {
+	if !Config.UseRedis {
+		return
+	}
+
+	companyAttendancesCacheKey := getCompanyAttendancesCacheKey(companyId)
+
+	_ = GetRedisCache().Set(&cache.Item{
+		Ctx:   context.TODO(),
+		Key:   companyAttendancesCacheKey,
+		Value: attendances,
+		TTL:   time.Minute,
+	})
+}
+
+func GetCompanyAttendancesFromCache(companyId primitive.ObjectID) ([]*models.Attendance, error) {
+	if !Config.UseRedis {
+		return nil, errors.New("no redis client, set USE_REDIS in .env")
+	}
+
+	var attendances []*models.Attendance
+	companyAttendancesCacheKey := getCompanyAttendancesCacheKey(companyId)
+	err := GetRedisCache().Get(context.TODO(), companyAttendancesCacheKey, &attendances)
+	return attendances, err
+}

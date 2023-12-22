@@ -27,6 +27,11 @@ func CompanyRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetCompanyMembers,
 		)
 		companies.GET(
+			"/:id/attendances",
+			validators.PathIdValidator(),
+			controllers.GetCompanyAttendances,
+		)
+		companies.GET(
 			"/:id/attendances/:page",
 			validators.PathIdValidator(),
 			validators.PathPageValidator(),

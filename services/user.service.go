@@ -77,16 +77,6 @@ func FindUserAttendanceByCompany(companyId primitive.ObjectID, userId primitive.
 	return attendances, nil
 }
 
-func FindAttendanceByCompany(companyId primitive.ObjectID) (*db.Attendance, error) {
-	attendance := &db.Attendance{}
-	err := mgm.Coll(attendance).First(bson.M{"companyId": companyId}, attendance)
-	if err != nil {
-		return nil, errors.New("304: Not Modified")
-	}
-
-	return attendance, nil
-}
-
 func RemoveUserFromCompany(companyId primitive.ObjectID, userId primitive.ObjectID) error {
 	company := &db.Company{}
 	user := &db.User{}

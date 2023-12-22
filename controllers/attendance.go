@@ -49,6 +49,14 @@ func AttendanceCheckIn(c *gin.Context) {
 		return
 	}
 
+	getAttendance, err := services.GetAttendanceByUserAndDateAndCompany(user.ID, requestBody.Date, company.ID)
+
+	if getAttendance != nil {
+		response.Message = "You have already checked in"
+		response.SendErrorResponse(c)
+		return
+	}
+
 	attendance := db.NewAttendance(user.ID, company.ID, requestBody.IpAddress, requestBody.Date, requestBody.Status, requestBody.CheckIn, "")
 	newAttendance, err := services.AttendanceCheckIn(attendance)
 

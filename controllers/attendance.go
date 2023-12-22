@@ -21,14 +21,9 @@ func AttendanceCheckIn(c *gin.Context) {
 	var requestBody models.CheckInRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	userIdHex := c.Param("userId")
-	userId, err := primitive.ObjectIDFromHex(userIdHex)
-	if err != nil {
-		response.Message = "Error converting user ID"
-		response.SendErrorResponse(c)
-		return
-	}
-	user, err := services.FindUserById(userId)
+	userId, _ := c.Get("userId")
+
+	user, err := services.FindUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

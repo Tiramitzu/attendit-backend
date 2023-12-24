@@ -15,7 +15,7 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 		users.GET(
 			"/@me/attendances/:companyId",
 			validators.PathCompanyIdValidator(),
-			controllers.UserAttendancesByCompany,
+			controllers.GetUserAttendancesByCompany,
 		)
 		users.POST(
 			"/@me/attendances/:companyId",

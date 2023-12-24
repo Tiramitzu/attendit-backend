@@ -101,18 +101,41 @@ func AttendanceCheckOut(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedAttendance)
 }
 
-func UserAttendancesByCompany(c *gin.Context) {
+func GetUserAttendancesByCompany(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
 	userId, _ := c.Get("userId")
 	user, _ := services.FindUserById(userId.(primitive.ObjectID))
-	companyId := c.Param("companyId")
-	objectId, err := primitive.ObjectIDFromHex(companyId)
+	companyIdHex := c.Param("companyId")
+	companyId, err := primitive.ObjectIDFromHex(companyIdHex)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
 		return
 	}
-	attendances, _ := services.FindUserAttendanceByCompany(objectId, user.ID)
 
-	c.JSON(http.StatusOK, attendances)
+	attendances, err := services.GetUserAttendancesByCompanyFromCache(user.ID, companyId)
+	if err == nil {
+		models.SendResponseData(c, gin.H{"attendances": attendances, "cache": true})
+		return
+	}
+
+	attendances, err = services.GetUserAttendancesByCompany(user.ID, companyId)
+
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	services.CacheUserAttendancesByCompany(user.ID, companyId, attendances)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"attendances": attendances}
+	response.SendResponse(c)
 }
 
 func GetCompanyAttendances(c *gin.Context) {

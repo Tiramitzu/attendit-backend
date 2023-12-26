@@ -14,10 +14,38 @@ import (
 )
 
 func GetCurrentUserCompanies(c *gin.Context) {
-	userId, _ := c.Get("userId")
-	companies := services.FindCompaniesByUserId(userId.(primitive.ObjectID))
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
 
-	c.JSON(http.StatusOK, companies)
+	userId, _ := c.Get("userId")
+	user, err := services.FindUserById(userId.(primitive.ObjectID))
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	companies, err := redisServices.GetCompaniesFromCache(user.ID)
+	if err == nil {
+		models.SendResponseData(c, gin.H{"companies": companies, "cache": true})
+		return
+	}
+
+	companies, err = services.GetCompaniesByUserId(user.ID)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	redisServices.CacheCompanies(user.ID, companies)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"companies": companies}
+	response.SendResponse(c)
 }
 
 func GetCompany(c *gin.Context) {

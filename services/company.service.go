@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func FindCompaniesByUserId(userId primitive.ObjectID) *[]db.Company {
+func GetCompaniesByUserId(userId primitive.ObjectID) (*[]db.Company, error) {
 	user, err := FindUserById(userId)
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	companies := &[]db.Company{}
@@ -26,7 +26,7 @@ func FindCompaniesByUserId(userId primitive.ObjectID) *[]db.Company {
 		*companies = append(*companies, *company)
 	}
 
-	return companies
+	return companies, nil
 }
 
 func GetCompanyById(companyId primitive.ObjectID) (*db.Company, error) {

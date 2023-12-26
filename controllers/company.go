@@ -4,6 +4,7 @@ import (
 	"attendit/backend/models"
 	db "attendit/backend/models/db"
 	"attendit/backend/services"
+	"attendit/backend/services/redis"
 	"github.com/gin-gonic/gin/binding"
 	"net/http"
 	"strconv"
@@ -32,7 +33,7 @@ func GetCompany(c *gin.Context) {
 		return
 	}
 
-	company, err := services.GetCompanyFromCache(companyId)
+	company, err := redisServices.GetCompanyFromCache(companyId)
 	if err == nil {
 		models.SendResponseData(c, gin.H{"company": company, "cache": true})
 		return
@@ -45,7 +46,7 @@ func GetCompany(c *gin.Context) {
 		return
 	}
 
-	services.CacheOneCompany(company)
+	redisServices.CacheOneCompany(company)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true

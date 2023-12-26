@@ -4,6 +4,7 @@ import (
 	"attendit/backend/models"
 	db "attendit/backend/models/db"
 	"attendit/backend/services"
+	"attendit/backend/services/redis"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -116,7 +117,7 @@ func GetUserAttendancesByCompany(c *gin.Context) {
 		return
 	}
 
-	attendances, err := services.GetUserAttendancesByCompanyFromCache(user.ID, companyId)
+	attendances, err := redisServices.GetUserAttendancesByCompanyFromCache(user.ID, companyId)
 	if err == nil {
 		models.SendResponseData(c, gin.H{"attendances": attendances, "cache": true})
 		return
@@ -130,7 +131,7 @@ func GetUserAttendancesByCompany(c *gin.Context) {
 		return
 	}
 
-	services.CacheUserAttendancesByCompany(user.ID, companyId, attendances)
+	redisServices.CacheUserAttendancesByCompany(user.ID, companyId, attendances)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true
@@ -156,7 +157,7 @@ func GetCompanyAttendances(c *gin.Context) {
 		return
 	}
 
-	attendances, err := services.GetCompanyAttendancesFromCache(companyId)
+	attendances, err := redisServices.GetCompanyAttendancesFromCache(companyId)
 	if err == nil {
 		models.SendResponseData(c, gin.H{"attendances": attendances, "cache": true})
 		return
@@ -170,7 +171,7 @@ func GetCompanyAttendances(c *gin.Context) {
 		return
 	}
 
-	services.CacheCompanyAttendances(companyId, attendances)
+	redisServices.CacheCompanyAttendances(companyId, attendances)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true

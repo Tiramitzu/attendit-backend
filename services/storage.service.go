@@ -1,12 +1,9 @@
 package services
 
 import (
-	models "attendit/backend/models/db"
 	"context"
-	"errors"
 	"github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"sync"
 	"time"
@@ -61,98 +58,4 @@ func CheckRedisConnection() {
 	}
 
 	log.Println("Connected to Redis!")
-}
-
-// Company Cache
-
-func getCompanyCacheKey(companyId primitive.ObjectID) string {
-	return "req:cache:company:" + companyId.Hex()
-}
-
-func CacheOneCompany(company *models.Company) {
-	if !Config.UseRedis {
-		return
-	}
-
-	companyCacheKey := getCompanyCacheKey(company.ID)
-
-	_ = GetRedisCache().Set(&cache.Item{
-		Ctx:   context.TODO(),
-		Key:   companyCacheKey,
-		Value: company,
-		TTL:   time.Minute,
-	})
-}
-
-func GetCompanyFromCache(companyId primitive.ObjectID) (*models.Company, error) {
-	if !Config.UseRedis {
-		return nil, errors.New("no redis client, set USE_REDIS in .env")
-	}
-
-	note := &models.Company{}
-	companyCacheKey := getCompanyCacheKey(companyId)
-	err := GetRedisCache().Get(context.TODO(), companyCacheKey, note)
-	return note, err
-}
-
-// Attendances cache
-
-func getUserAttendanceByCompanyCacheKey(userId primitive.ObjectID, companyId primitive.ObjectID) string {
-	return "req:cache:user:attendance:" + userId.Hex() + ":" + companyId.Hex()
-}
-
-func CacheUserAttendancesByCompany(userId primitive.ObjectID, companyId primitive.ObjectID, attendance *[]models.Attendance) {
-	if !Config.UseRedis {
-		return
-	}
-
-	userAttendanceByCompanyCacheKey := getUserAttendanceByCompanyCacheKey(userId, companyId)
-
-	_ = GetRedisCache().Set(&cache.Item{
-		Ctx:   context.TODO(),
-		Key:   userAttendanceByCompanyCacheKey,
-		Value: attendance,
-		TTL:   time.Minute,
-	})
-}
-
-func GetUserAttendancesByCompanyFromCache(userId primitive.ObjectID, companyId primitive.ObjectID) (*[]models.Attendance, error) {
-	if !Config.UseRedis {
-		return nil, errors.New("no redis client, set USE_REDIS in .env")
-	}
-
-	var attendances []models.Attendance
-	userAttendanceByCompanyCacheKey := getUserAttendanceByCompanyCacheKey(userId, companyId)
-	err := GetRedisCache().Get(context.TODO(), userAttendanceByCompanyCacheKey, &attendances)
-	return &attendances, err
-}
-
-func getCompanyAttendancesCacheKey(companyId primitive.ObjectID) string {
-	return "req:cache:company:attendances:" + companyId.Hex()
-}
-
-func CacheCompanyAttendances(companyId primitive.ObjectID, attendances []*models.Attendance) {
-	if !Config.UseRedis {
-		return
-	}
-
-	companyAttendancesCacheKey := getCompanyAttendancesCacheKey(companyId)
-
-	_ = GetRedisCache().Set(&cache.Item{
-		Ctx:   context.TODO(),
-		Key:   companyAttendancesCacheKey,
-		Value: attendances,
-		TTL:   time.Minute,
-	})
-}
-
-func GetCompanyAttendancesFromCache(companyId primitive.ObjectID) ([]*models.Attendance, error) {
-	if !Config.UseRedis {
-		return nil, errors.New("no redis client, set USE_REDIS in .env")
-	}
-
-	var attendances []*models.Attendance
-	companyAttendancesCacheKey := getCompanyAttendancesCacheKey(companyId)
-	err := GetRedisCache().Get(context.TODO(), companyAttendancesCacheKey, &attendances)
-	return attendances, err
 }

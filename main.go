@@ -34,6 +34,7 @@ import (
 func main() {
 	services.LoadConfig()
 	services.InitMongoDB()
+	services.CheckRedisConnection()
 
 	routes.InitGin()
 	router := routes.New()

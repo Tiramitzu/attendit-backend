@@ -13,6 +13,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// GetCompany godoc
+// @Summary      GetCompany
+// @Description  gets the company
+// @Tags         company
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /company [get]
 func GetCompany(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -40,6 +49,16 @@ func GetCompany(c *gin.Context) {
 	response.SendResponse(c)
 }
 
+// GetCompanyMembers godoc
+// @Summary      GetCompanyMembers
+// @Description  gets the company members
+// @Tags         company
+// @Accept       json
+// @Produce      json
+// @Param        page  path  int  true  "Page"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /company/members/{page} [get]
 func GetCompanyMembers(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -72,6 +91,16 @@ func GetCompanyMembers(c *gin.Context) {
 	response.SendResponse(c)
 }
 
+// ModifyCompany godoc
+// @Summary      ModifyCompany
+// @Description  modifies the company
+// @Tags         company
+// @Accept       json
+// @Produce      json
+// @Param        req  body  models.Company
+// @Success      200  {object}  models.
+// @Failure      400  {object}  models.
+// @Router       /company [put]
 func ModifyCompany(c *gin.Context) {
 	_ = c.ShouldBindJSON(&company)
 
@@ -88,6 +117,16 @@ func ModifyCompany(c *gin.Context) {
 	c.JSON(http.StatusOK, updateCompany)
 }
 
+// GetCompanyAttendances godoc
+// @Summary      GetCompanyAttendances
+// @Description  gets the company attendances
+// @Tags         company
+// @Accept       json
+// @Produce      json
+// @Param        page  path  int  true  "Page"
+// @Success      200  {object}  models.
+// @Failure      400  {object}  models.
+// @Router       /company/attendances/{page} [get]
 	}
 
 	}

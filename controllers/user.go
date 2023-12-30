@@ -10,6 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// GetCurrentUser godoc
+// @Summary      GetCurrentUser
+// @Description  gets the current user
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /users/@me [get]
 func GetCurrentUser(c *gin.Context) {
 	userId, _ := c.Get("userId")
 	user, _ := services.FindUserById(userId.(primitive.ObjectID))
@@ -29,7 +38,27 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// ModifyCurrentUser godoc
+// @Summary      ModifyCurrentUser
+// @Description  modifies the current user
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        req  body      models.ModifyUserRequest
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /users/@me [patch]
 func ModifyCurrentUser(c *gin.Context) {
+// AttendanceCheckIn godoc
+// @Summary      AttendanceCheckIn
+// @Description  checks in the user
+// @Tags         attendance
+// @Accept       json
+// @Produce      json
+// @Param        req  body      models.CheckInRequest
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /users/@me/attendances [post]
 func AttendanceCheckIn(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,

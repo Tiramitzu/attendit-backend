@@ -24,7 +24,7 @@ func CacheCompany(company *models.Company) {
 		Ctx:   context.TODO(),
 		Key:   companyCacheKey,
 		Value: company,
-		TTL:   time.Minute,
+		TTL:   time.Second * 30,
 	})
 }
 

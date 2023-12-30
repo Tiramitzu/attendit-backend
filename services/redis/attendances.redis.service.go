@@ -25,7 +25,7 @@ func CacheUserAttendancesByCompany(userId primitive.ObjectID, attendance *[]mode
 		Ctx:   context.TODO(),
 		Key:   userAttendanceByCompanyCacheKey,
 		Value: attendance,
-		TTL:   time.Minute,
+		TTL:   time.Second * 30,
 	})
 }
 
@@ -55,7 +55,7 @@ func CacheCompanyAttendances(page int, attendances []*models.Attendance) {
 		Ctx:   context.TODO(),
 		Key:   companyAttendancesCacheKey,
 		Value: attendances,
-		TTL:   time.Minute,
+		TTL:   time.Second * 30,
 	})
 }
 

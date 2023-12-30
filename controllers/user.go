@@ -1,10 +1,13 @@
 package controllers
 
 import (
-	"net/http"
-	"strconv"
-
+	"attendit/backend/models"
+	db "attendit/backend/models/db"
 	"attendit/backend/services"
+	redisServices "attendit/backend/services/redis"
+	"github.com/gin-gonic/gin/binding"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,22 +23,35 @@ import (
 // @Failure      400  {object}  models.Response
 // @Router       /users/@me [get]
 func GetCurrentUser(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
 	userId, _ := c.Get("userId")
-	user, _ := services.FindUserById(userId.(primitive.ObjectID))
 
-	c.JSON(http.StatusOK, user)
-}
-
-func GetUser(c *gin.Context) {
-	userId := c.Param("id")
-	objectId, err := primitive.ObjectIDFromHex(userId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": strconv.Itoa(http.StatusBadRequest) + ": Invalid ID"})
+	user, err := redisServices.GetUserFromCache(userId.(primitive.ObjectID))
+	if err == nil {
+		response.StatusCode = http.StatusOK
+		response.Success = true
+		response.Data = gin.H{"user": user, "cache": true}
+		response.SendResponse(c)
 		return
 	}
-	user, _ := services.FindUserById(objectId)
 
-	c.JSON(http.StatusOK, user)
+	user, err = services.FindUserById(userId.(primitive.ObjectID))
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	redisServices.CacheUser(user)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"user": user}
+	response.SendResponse(c)
 }
 
 // ModifyCurrentUser godoc
@@ -49,6 +65,42 @@ func GetUser(c *gin.Context) {
 // @Failure      400  {object}  models.Response
 // @Router       /users/@me [patch]
 func ModifyCurrentUser(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
+	var requestBody models.ModifyUserRequest
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+
+	userId, _ := c.Get("userId")
+	user, err := services.FindUserById(userId.(primitive.ObjectID))
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	user.Email = requestBody.Email
+	user.DisplayName = requestBody.DisplayName
+	user.UserName = requestBody.UserName
+	user.Phone = requestBody.Phone
+
+	updatedUser, err := services.UpdateUser(user)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	redisServices.CacheUser(updatedUser)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"user": updatedUser}
+	response.SendResponse(c)
+}
+
 // AttendanceCheckIn godoc
 // @Summary      AttendanceCheckIn
 // @Description  checks in the user

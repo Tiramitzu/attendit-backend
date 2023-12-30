@@ -43,15 +43,6 @@ func (a CheckInRequest) Validate() error {
 	)
 }
 
-type CheckOutRequest struct {
-	CheckOut string `json:"checkOut"`
-}
-
-func (a CheckOutRequest) Validate() error {
-	return validation.ValidateStruct(&a,
-		validation.Field(&a.CheckOut, validation.Required),
-	)
-}
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -75,5 +66,21 @@ func (a RefreshRequest) Validate() error {
 			validation.Required,
 			validation.Match(regexp.MustCompile("^\\S+$")).Error("cannot contain whitespaces"),
 		),
+	)
+}
+
+type ModifyUserRequest struct {
+	Email       string `json:"email"`
+	DisplayName string `json:"displayName"`
+	UserName    string `json:"username"`
+	Phone       string `json:"phone"`
+}
+
+func (a ModifyUserRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.Email, is.Email),
+		validation.Field(&a.UserName, validation.Length(3, 64)),
+		validation.Field(&a.DisplayName, validation.Length(3, 64)),
+		validation.Field(&a.Phone, validation.Length(11, 14)),
 	)
 }

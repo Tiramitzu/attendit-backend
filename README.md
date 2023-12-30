@@ -1,14 +1,12 @@
-GoLang + MongoDB + Redis RESTful Application Starter
-----------------------------------------------------
-[![Go Report Card](https://goreportcard.com/badge/github.com/ebubekiryigit/golang-mongodb-rest-api-starter)](https://goreportcard.com/report/github.com/ebubekiryigit/golang-mongodb-rest-api-starter)
+## GoLang + MongoDB + Redis RESTful Application Starter
+
+![Go Report Card](https://goreportcard.com/badge/github.com/ebubekiryigit/golang-mongodb-rest-api-starter)
 
 This project is a 'Boilerplate' or 'Starter' to build RESTful
 Applications and microservices using
 GoLang ([Gin](https://github.com/gin-gonic/gin) HTTP web framework), MongoDB and Redis.
 
-
-Table of Contents
------------------
+## Table of Contents
 
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -16,8 +14,7 @@ Table of Contents
 - [Project Structure](#project-structure)
 - [Future Work](#future-work)
 
-Features
---------
+## Features
 
 - [Gin](https://github.com/gin-gonic/gin)
 - [JWT Authentication](https://github.com/golang-jwt/jwt)
@@ -28,20 +25,19 @@ Features
 - Docker support
 - Swagger with [gin-swagger](https://github.com/swaggo/gin-swagger)
 
-Prerequisites
--------------
+## Prerequisites
 
 - Git
 - Docker
 - [Go 1.20](https://go.dev/doc/install) and above
 
-_If you are not using Docker, you should also have:_
+*If you are not using Docker, you should also have:*
 
 - MongoDB
 - Redis 6.2.X
 
-Getting Started
----------------
+## Getting Started
+
 Clone the repository and enjoy, I strongly recommend [Jetbrains GoLand](https://www.jetbrains.com/go/) :)
 
 ```bash
@@ -107,11 +103,10 @@ The application starts at port 8080:
 
 You can also see: http://localhost:8080/swagger/index.html
 
-> If you want to add new routes and swagger docs, you should run ```swag init```
+> If you want to add new routes and swagger docs, you should run `swag init`
 > See: [Gin Swagger](https://github.com/swaggo/gin-swagger)
 
-Project Structure
------------------
+## Project Structure
 
 ```
 ├── controllers         # contains api functions and main business logic
@@ -125,14 +120,12 @@ Project Structure
 └── services            # general service & database actions
 ```
 
-Future Work
------------
+## Future Work
 
 - Rate Limiting
 - i18n Localization
 - Testing
 
-License
--------
+## License
 
 [MIT License](LICENSE) - [Ebubekir Yiğit](https://github.com/ebubekiryigit)

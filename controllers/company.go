@@ -2,15 +2,12 @@ package controllers
 
 import (
 	"attendit/backend/models"
-	db "attendit/backend/models/db"
 	"attendit/backend/services"
 	"attendit/backend/services/redis"
-	"github.com/gin-gonic/gin/binding"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // GetCompany godoc
@@ -102,6 +99,7 @@ func GetCompanyMembers(c *gin.Context) {
 // @Failure      400  {object}  models.
 // @Router       /company [put]
 func ModifyCompany(c *gin.Context) {
+	company, _ := services.GetCompany()
 	_ = c.ShouldBindJSON(&company)
 
 	if company.Author != c.MustGet("userId") {
@@ -127,15 +125,34 @@ func ModifyCompany(c *gin.Context) {
 // @Success      200  {object}  models.
 // @Failure      400  {object}  models.
 // @Router       /company/attendances/{page} [get]
+func GetCompanyAttendances(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
 	}
 
+	page, _ := strconv.Atoi(c.Param("page"))
+	if page == 0 {
+		page = 1
 	}
 
+	attendances, err := redisServices.GetCompanyAttendancesFromCache(page)
+	if err == nil {
+		models.SendResponseData(c, gin.H{"attendances": attendances, "cache": true})
 		return
 	}
 
+	attendances, err = services.GetAttendancesByCompany(page)
 	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
 		return
 	}
 
+	redisServices.CacheCompanyAttendances(page, attendances)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"attendances": attendances}
+	response.SendResponse(c)
 }

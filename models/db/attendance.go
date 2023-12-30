@@ -8,7 +8,6 @@ import (
 type Attendance struct {
 	mgm.DefaultModel `bson:",inline"`
 	UserId           primitive.ObjectID `json:"userId" bson:"userId"`
-	CompanyId        primitive.ObjectID `json:"companyId" bson:"companyId"`
 	IpAddress        string             `json:"ipAddress" bson:"ipAddress"`
 	Status           string             `json:"status" bson:"status"`
 	Date             string             `json:"date" bson:"date"`
@@ -16,10 +15,9 @@ type Attendance struct {
 	CheckOut         string             `json:"checkOut" bson:"checkOut"`
 }
 
-func NewAttendance(userId primitive.ObjectID, companyId primitive.ObjectID, ipAddress string, date string, status string, checkIn string, checkOut string) *Attendance {
+func NewAttendance(userId primitive.ObjectID, ipAddress string, date string, status string, checkIn string, checkOut string) *Attendance {
 	return &Attendance{
 		UserId:    userId,
-		CompanyId: companyId,
 		IpAddress: ipAddress,
 		Status:    status,
 		Date:      date,

@@ -38,20 +38,6 @@ func PathUserIdValidator() gin.HandlerFunc {
 	}
 }
 
-func PathCompanyIdValidator() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		id := c.Param("companyId")
-		err := validation.Validate(id, is.MongoID)
-		if err != nil {
-			models.SendErrorResponse(c, http.StatusBadRequest, "Invalid companyId: "+id)
-			return
-		}
-
-		c.Next()
-	}
-}
-
 func PathAttendanceIdValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 

@@ -2,13 +2,10 @@ package services
 
 import (
 	db "attendit/backend/models/db"
-	"context"
-	"errors"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
 
 func FindAttendanceById(id primitive.ObjectID) (*db.Attendance, error) {
@@ -42,9 +39,9 @@ func AttendanceCheckOut(attendance *db.Attendance) (*db.Attendance, error) {
 	return attendance, nil
 }
 
-func GetAttendanceByUserAndDateAndCompany(userId primitive.ObjectID, date string, companyId primitive.ObjectID) (*db.Attendance, error) {
+func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Attendance, error) {
 	attendance := &db.Attendance{}
-	err := mgm.Coll(attendance).First(bson.M{"userId": userId, "date": date, "companyId": companyId}, attendance)
+	err := mgm.Coll(attendance).First(bson.M{"userId": userId, "date": date}, attendance)
 	if err != nil {
 		return nil, err
 	}
@@ -52,28 +49,15 @@ func GetAttendanceByUserAndDateAndCompany(userId primitive.ObjectID, date string
 	return attendance, nil
 }
 
-func GetAttendancesByCompany(companyId primitive.ObjectID, page int) ([]*db.Attendance, error) {
+func GetAttendancesByCompany(page int) ([]*db.Attendance, error) {
 	var attendances []*db.Attendance
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	filter := bson.M{"companyId": companyId}
 	opts := options.Find()
-	opts.SetSkip(int64(page - 1))
-	opts.SetLimit(10)
+	opts.SetLimit(25)
+	opts.SetSkip(int64((page - 1) * 25))
+	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{}, opts)
 
-	cursor, err := mgm.Coll(&db.Attendance{}).Find(ctx, filter, opts)
 	if err != nil {
-		return nil, errors.New("304: Not Modified")
-	}
-
-	for cursor.Next(ctx) {
-		attendance := &db.Attendance{}
-		err := cursor.Decode(attendance)
-		if err != nil {
-			return nil, errors.New("304: Not Modified")
-		}
-
-		attendances = append(attendances, attendance)
+		return nil, err
 	}
 
 	return attendances, nil

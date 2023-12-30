@@ -1,8 +1,6 @@
 package models
 
 import (
-	db "attendit/backend/models/db"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -35,15 +33,12 @@ func (a RegisterRequest) Validate() error {
 
 type CheckInRequest struct {
 	IpAddress string `json:"ipAddress"`
-	Date      string `json:"date"`
 	Status    string `json:"status"`
-	CheckIn   string `json:"checkIn"`
 }
 
 func (a CheckInRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.IpAddress, validation.Required),
-		validation.Field(&a.Date, validation.Required),
 		validation.Field(&a.Status, validation.Required),
 	)
 }
@@ -57,49 +52,6 @@ func (a CheckOutRequest) Validate() error {
 		validation.Field(&a.CheckOut, validation.Required),
 	)
 }
-
-type CreateCompanyRequest struct {
-	Author       string   `json:"author"`
-	Name         string   `json:"name"`
-	IPAddresses  []string `json:"ipAddresses"`
-	CheckInTime  string   `json:"checkInTime"`
-	CheckOutTime string   `json:"checkOutTime"`
-}
-
-func (a CreateCompanyRequest) Validate() error {
-	return validation.ValidateStruct(&a,
-		validation.Field(&a.Author, validation.Required),
-		validation.Field(&a.Name, validation.Required, validation.Length(3, 64)),
-		validation.Field(&a.IPAddresses, validation.Required),
-		validation.Field(&a.CheckInTime, validation.Required),
-		validation.Field(&a.CheckOutTime, validation.Required),
-	)
-}
-
-type InsertMembersToCompanyRequest struct {
-	Members []db.Member `json:"members"`
-}
-
-func (a InsertMembersToCompanyRequest) Validate() error {
-	return validation.ValidateStruct(&a,
-		validation.Field(&a.Members, validation.Required),
-	)
-}
-
-type CreateInvitationRequest struct {
-	UserID    primitive.ObjectID `json:"userId"`
-	CompanyID primitive.ObjectID `json:"companyId"`
-	Role      string             `json:"role"`
-}
-
-func (a CreateInvitationRequest) Validate() error {
-	return validation.ValidateStruct(&a,
-		validation.Field(&a.UserID, validation.Required),
-		validation.Field(&a.CompanyID, validation.Required),
-		validation.Field(&a.Role, validation.Required),
-	)
-}
-
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

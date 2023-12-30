@@ -69,10 +69,10 @@ func CheckUserMail(email string) error {
 	return nil
 }
 
-func GetUserAttendancesByCompany(companyId primitive.ObjectID, userId primitive.ObjectID) (*[]db.Attendance, error) {
+func GetUserAttendances(userId primitive.ObjectID) (*[]db.Attendance, error) {
 	attendances := &[]db.Attendance{}
 	attendance := &db.Attendance{}
-	_ = mgm.Coll(attendance).SimpleFind(bson.M{"companyId": companyId, "userId": userId}, attendances)
+	_ = mgm.Coll(attendance).SimpleFind(bson.M{"userId": userId}, attendances)
 
 	return attendances, nil
 }

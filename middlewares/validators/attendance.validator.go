@@ -19,17 +19,3 @@ func CheckInValidator() gin.HandlerFunc {
 		c.Next()
 	}
 }
-
-func CheckOutValidator() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		var checkOutRequest models.CheckOutRequest
-		_ = c.ShouldBindBodyWith(&checkOutRequest, binding.JSON)
-
-		if err := checkOutRequest.Validate(); err != nil {
-			c.AbortWithStatusJSON(400, gin.H{"message": err.Error()})
-		}
-
-		c.Next()
-	}
-}

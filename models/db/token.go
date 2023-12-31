@@ -30,7 +30,3 @@ func NewToken(userId primitive.ObjectID, tokenString string) *Token {
 func (model *Token) CollectionName() string {
 	return "tokens"
 }
-
-// You can override Collection functions or CRUD hooks
-// https://github.com/Kamva/mgm#a-models-hooks
-// https://github.com/Kamva/mgm#collections

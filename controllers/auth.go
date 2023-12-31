@@ -19,7 +19,7 @@ import (
 // @Param        req  body      models.RegisterRequest true "Register Request"
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
-// @Router       /auth/register [post]
+// @Router       /auth/register [put]
 func Register(c *gin.Context) {
 	var requestBody models.RegisterRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
@@ -29,19 +29,17 @@ func Register(c *gin.Context) {
 		Success:    false,
 	}
 
-	// is email in use
 	err := services.CheckUserMail(requestBody.Email)
 	if err != nil {
 		response.Message = err.Error()
-		c.JSON(http.StatusBadRequest, response)
+		response.SendErrorResponse(c)
 		return
 	}
 
-	// create user record
 	user, err := services.CreateUser(requestBody.UserName, requestBody.Email, requestBody.Password, requestBody.DisplayName, requestBody.Phone)
 	if err != nil {
 		response.Message = err.Error()
-		c.JSON(http.StatusBadRequest, response)
+		response.SendErrorResponse(c)
 		return
 	}
 
@@ -55,11 +53,10 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"user":    user,
-		"token":   accessToken.GetResponseString(),
-	})
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"user": user, "token": accessToken.GetResponseString()}
+	response.SendResponse(c)
 }
 
 // Login godoc
@@ -81,7 +78,6 @@ func Login(c *gin.Context) {
 		Success:    false,
 	}
 
-	// get user by email
 	user, err := services.FindUserByEmail(requestBody.Email)
 	if err != nil {
 		response.Message = err.Error()
@@ -89,7 +85,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// check hashed password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(requestBody.Password))
 	if err != nil {
 		response.Message = "Email and password don't match"
@@ -104,9 +99,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"user":    user,
-		"token":   accessToken.GetResponseString(),
-	})
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"user": user, "token": accessToken.GetResponseString()}
+	response.SendResponse(c)
 }

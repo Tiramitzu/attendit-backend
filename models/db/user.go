@@ -3,19 +3,15 @@ package models
 import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/kamva/mgm/v3"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
 	mgm.DefaultModel `bson:",inline"`
-	Email            string               `json:"email" bson:"email"`
-	Password         string               `json:"-" bson:"password"`
-	DisplayName      string               `json:"displayName" bson:"displayName"`
-	Phone            string               `json:"phone" bson:"phone"`
-	UserName         string               `json:"username" bson:"username"`
-	MailVerified     bool                 `json:"mail_verified" bson:"mail_verified"`
-	Companies        []primitive.ObjectID `json:"companies" bson:"companies"`
-	Invitations      []primitive.ObjectID `json:"invitations" bson:"invitations"`
+	Email            string `json:"email" bson:"email"`
+	Password         string `json:"-" bson:"password"`
+	DisplayName      string `json:"displayName" bson:"displayName"`
+	Phone            string `json:"phone" bson:"phone"`
+	UserName         string `json:"username" bson:"username"`
 }
 
 type UserClaims struct {
@@ -26,19 +22,14 @@ type UserClaims struct {
 
 func NewUser(email string, password string, username string, displayName string, phone string) *User {
 	return &User{
-		Email:        email,
-		Password:     password,
-		DisplayName:  displayName,
-		UserName:     username,
-		Phone:        phone,
-		MailVerified: false,
+		Email:       email,
+		Password:    password,
+		DisplayName: displayName,
+		UserName:    username,
+		Phone:       phone,
 	}
 }
 
 func (model *User) CollectionName() string {
 	return "users"
 }
-
-// You can override Collection functions or CRUD hooks
-// https://github.com/Kamva/mgm#a-models-hooks
-// https://github.com/Kamva/mgm#collections

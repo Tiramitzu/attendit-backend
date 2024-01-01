@@ -36,7 +36,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	user, err := services.CreateUser(requestBody.UserName, requestBody.Email, requestBody.Password, requestBody.DisplayName, requestBody.Phone)
+	user, err := services.CreateUser(requestBody.Email, requestBody.Password, requestBody.DisplayName, requestBody.Phone)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

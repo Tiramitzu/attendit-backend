@@ -17,7 +17,6 @@ type RegisterRequest struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	DisplayName string `json:"displayName"`
-	UserName    string `json:"username"`
 	Phone       string `json:"phone"`
 }
 
@@ -25,7 +24,6 @@ func (a RegisterRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Email, validation.Required, is.Email),
 		validation.Field(&a.Password, passwordRule...),
-		validation.Field(&a.UserName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&a.DisplayName, validation.Length(3, 64)),
 		validation.Field(&a.Phone, validation.Length(11, 14)),
 	)

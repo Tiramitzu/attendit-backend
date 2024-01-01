@@ -4,6 +4,7 @@ import (
 	"attendit/backend/models"
 	"attendit/backend/services"
 	"attendit/backend/services/redis"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"strconv"
 
@@ -99,20 +100,41 @@ func GetCompanyMembers(c *gin.Context) {
 // @Failure      400  {object}  models.
 // @Router       /company [put]
 func ModifyCompany(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
 	company, _ := services.GetCompany()
 	_ = c.ShouldBindJSON(&company)
 
-	if company.Author != c.MustGet("userId") {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": strconv.Itoa(http.StatusUnauthorized) + ": Unauthorized"})
+	userId, _ := c.Get("userId")
+	user, err := services.FindUserById(userId.(primitive.ObjectID))
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	if user.Role != "admin" {
+		response.Message = "You are not allowed to modify the company"
+		response.SendErrorResponse(c)
 		return
 	}
 
 	updateCompany, err := services.UpdateCompany(company)
 	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
 		return
 	}
 
-	c.JSON(http.StatusOK, updateCompany)
+	redisServices.CacheCompany(updateCompany)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"company": updateCompany}
+	response.SendResponse(c)
 }
 
 // GetCompanyAttendances godoc

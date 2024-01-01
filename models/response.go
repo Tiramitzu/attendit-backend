@@ -23,14 +23,14 @@ func (response *Response) SendErrorResponse(c *gin.Context) {
 
 func SendResponseData(c *gin.Context, data any) {
 	c.JSON(http.StatusOK, gin.H{
-		"success": "true",
+		"success": true,
 		"data":    data,
 	})
 }
 
 func SendErrorResponse(c *gin.Context, status int, message string) {
 	c.AbortWithStatusJSON(status, gin.H{
-		"success": "false",
+		"success": false,
 		"message": message,
 	})
 }

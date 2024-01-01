@@ -15,13 +15,19 @@ func JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ipAddress, err := getClientIP(c.Request)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
 			return
 		}
 
 		company, err := services.GetCompany()
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
 			return
 		}
 
@@ -35,7 +41,10 @@ func JWTMiddleware() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")
 		tokenModel, err := services.VerifyToken(token[7:])
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
 			return
 		}
 

@@ -9,7 +9,7 @@ type User struct {
 	mgm.DefaultModel `bson:",inline"`
 	Email            string `json:"email" bson:"email"`
 	Password         string `json:"-" bson:"password"`
-	DisplayName      string `json:"displayName" bson:"displayName"`
+	FullName         string `json:"fullName" bson:"fullName"`
 	Phone            string `json:"phone" bson:"phone"`
 	Role             string `json:"role" bson:"role"`
 }
@@ -20,13 +20,13 @@ type UserClaims struct {
 	Type  string `json:"type"`
 }
 
-func NewUser(email string, password string, displayName string, phone string) *User {
+func NewUser(email string, password string, fullName string, phone string) *User {
 	return &User{
-		Email:       email,
-		Password:    password,
-		DisplayName: displayName,
-		Phone:       phone,
-		Role:        "user",
+		Email:    email,
+		Password: password,
+		FullName: fullName,
+		Phone:    phone,
+		Role:     "user",
 	}
 }
 

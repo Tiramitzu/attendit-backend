@@ -10,13 +10,13 @@ import (
 )
 
 // CreateUser create a user record
-func CreateUser(email string, plainPassword string, displayName string, phone string) (*db.User, error) {
+func CreateUser(email string, plainPassword string, fullName string, phone string) (*db.User, error) {
 	password, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, errors.New("cannot generate hashed password")
 	}
 
-	user := db.NewUser(email, string(password), displayName, phone)
+	user := db.NewUser(email, string(password), fullName, phone)
 	err = mgm.Coll(user).Create(user)
 	if err != nil {
 		return nil, errors.New("cannot create new user")

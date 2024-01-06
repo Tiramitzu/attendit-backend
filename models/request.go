@@ -28,17 +28,17 @@ func (a ScheduleRequest) Validate() error {
 }
 
 type RegisterRequest struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	DisplayName string `json:"displayName"`
-	Phone       string `json:"phone"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	FullName string `json:"fullName"`
+	Phone    string `json:"phone"`
 }
 
 func (a RegisterRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Email, validation.Required, is.Email),
 		validation.Field(&a.Password, passwordRule...),
-		validation.Field(&a.DisplayName, validation.Length(3, 64)),
+		validation.Field(&a.FullName, validation.Length(3, 64)),
 		validation.Field(&a.Phone, validation.Length(11, 14)),
 	)
 }
@@ -82,17 +82,15 @@ func (a RefreshRequest) Validate() error {
 }
 
 type ModifyUserRequest struct {
-	Email       string `json:"email"`
-	DisplayName string `json:"displayName"`
-	UserName    string `json:"username"`
-	Phone       string `json:"phone"`
+	Email    string `json:"email"`
+	FullName string `json:"fullNameName"`
+	Phone    string `json:"phone"`
 }
 
 func (a ModifyUserRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Email, is.Email),
-		validation.Field(&a.UserName, validation.Length(3, 64)),
-		validation.Field(&a.DisplayName, validation.Length(3, 64)),
+		validation.Field(&a.FullName, validation.Length(3, 64)),
 		validation.Field(&a.Phone, validation.Length(11, 14)),
 	)
 }

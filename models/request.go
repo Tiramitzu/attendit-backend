@@ -7,10 +7,12 @@ import (
 	"github.com/go-ozzo/ozzo-validation/is"
 )
 
+var Required = validation.Required.Error("tidak boleh kosong")
+
 var passwordRule = []validation.Rule{
 	validation.Required,
 	validation.Length(8, 32),
-	validation.Match(regexp.MustCompile("^\\S+$")).Error("cannot contain whitespaces"),
+	validation.Match(regexp.MustCompile("^\\S+$")).Error("tidak boleh mengandung spasi"),
 }
 
 type ScheduleRequest struct {
@@ -21,9 +23,9 @@ type ScheduleRequest struct {
 
 func (a ScheduleRequest) Validate() error {
 	return validation.ValidateStruct(&a,
-		validation.Field(&a.Title, validation.Required),
-		validation.Field(&a.StartTime, validation.Required),
-		validation.Field(&a.EndTime, validation.Required),
+		validation.Field(&a.Title, Required),
+		validation.Field(&a.StartTime, Required),
+		validation.Field(&a.EndTime, Required),
 	)
 }
 
@@ -36,10 +38,10 @@ type RegisterRequest struct {
 
 func (a RegisterRequest) Validate() error {
 	return validation.ValidateStruct(&a,
-		validation.Field(&a.Email, validation.Required, is.Email),
+		validation.Field(&a.Email, Required, is.Email.Error("tidak valid")),
 		validation.Field(&a.Password, passwordRule...),
-		validation.Field(&a.FullName, validation.Length(3, 64)),
-		validation.Field(&a.Phone, validation.Length(11, 14)),
+		validation.Field(&a.FullName, validation.Length(3, 0).Error("harus lebih dari 3 karakter")),
+		validation.Field(&a.Phone, validation.Length(11, 14).Error("harus terdiri dari 11-14 karakter")),
 	)
 }
 
@@ -50,8 +52,8 @@ type CheckInRequest struct {
 
 func (a CheckInRequest) Validate() error {
 	return validation.ValidateStruct(&a,
-		validation.Field(&a.IpAddress, validation.Required),
-		validation.Field(&a.Status, validation.Required),
+		validation.Field(&a.IpAddress, Required),
+		validation.Field(&a.Status, Required),
 	)
 }
 
@@ -62,35 +64,21 @@ type LoginRequest struct {
 
 func (a LoginRequest) Validate() error {
 	return validation.ValidateStruct(&a,
-		validation.Field(&a.Email, validation.Required, is.Email),
+		validation.Field(&a.Email, Required, is.Email.Error("tidak valid")),
 		validation.Field(&a.Password, passwordRule...),
-	)
-}
-
-type RefreshRequest struct {
-	Token string `json:"token"`
-}
-
-func (a RefreshRequest) Validate() error {
-	return validation.ValidateStruct(&a,
-		validation.Field(
-			&a.Token,
-			validation.Required,
-			validation.Match(regexp.MustCompile("^\\S+$")).Error("cannot contain whitespaces"),
-		),
 	)
 }
 
 type ModifyUserRequest struct {
 	Email    string `json:"email"`
-	FullName string `json:"fullNameName"`
+	FullName string `json:"fullName"`
 	Phone    string `json:"phone"`
 }
 
 func (a ModifyUserRequest) Validate() error {
 	return validation.ValidateStruct(&a,
-		validation.Field(&a.Email, is.Email),
-		validation.Field(&a.FullName, validation.Length(3, 64)),
-		validation.Field(&a.Phone, validation.Length(11, 14)),
+		validation.Field(&a.Email, is.Email.Error(" tidak valid")),
+		validation.Field(&a.FullName, validation.Length(3, 0).Error("harus lebih dari 3 karakter")),
+		validation.Field(&a.Phone, validation.Length(11, 14).Error("harus terdiri dari 11-14 karakter")),
 	)
 }

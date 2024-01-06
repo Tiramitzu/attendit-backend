@@ -56,12 +56,7 @@ func CreateUserSchedule(c *gin.Context) {
 	userId, _ := c.Get("userId")
 	user, _ := services.GetUserById(userId.(primitive.ObjectID))
 
-	schedule := &db.Schedule{
-		UserId:    user.ID,
-		Title:     requestBody.Title,
-		StartTime: requestBody.StartTime,
-		EndTime:   requestBody.EndTime,
-	}
+	schedule := db.NewSchedule(user.ID, requestBody.Title, requestBody.StartTime, requestBody.EndTime)
 
 	schedule, err := services.CreateSchedule(schedule)
 	if err != nil {

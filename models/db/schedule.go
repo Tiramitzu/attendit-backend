@@ -13,7 +13,7 @@ type Schedule struct {
 	EndTime          string             `json:"endTime" bson:"endTime"`
 }
 
-func NewSchedule(userId primitive.ObjectID, title string, startTime string, endTime string, status string) *Schedule {
+func NewSchedule(userId primitive.ObjectID, title string, startTime string, endTime string) *Schedule {
 	return &Schedule{
 		UserId:    userId,
 		Title:     title,

@@ -38,6 +38,7 @@ func Register(c *gin.Context) {
 
 	user, err := services.CreateUser(requestBody.Email, requestBody.Password, requestBody.DisplayName, requestBody.Phone)
 	if err != nil {
+		response.StatusCode = http.StatusInternalServerError
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
@@ -48,6 +49,7 @@ func Register(c *gin.Context) {
 	// generate access tokens
 	accessToken, err := services.GenerateAccessTokens(user)
 	if err != nil {
+		response.StatusCode = http.StatusInternalServerError
 		response.Message = err.Error()
 		response.SendResponse(c)
 		return
@@ -78,7 +80,7 @@ func Login(c *gin.Context) {
 		Success:    false,
 	}
 
-	user, err := services.FindUserByEmail(requestBody.Email)
+	user, err := services.GetUserByEmail(requestBody.Email)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

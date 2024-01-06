@@ -109,7 +109,7 @@ func ModifyCompany(c *gin.Context) {
 	_ = c.ShouldBindJSON(&company)
 
 	userId, _ := c.Get("userId")
-	user, err := services.FindUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

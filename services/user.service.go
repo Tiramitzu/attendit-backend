@@ -34,10 +34,10 @@ func UpdateUser(user *db.User) (*db.User, error) {
 	return user, nil
 }
 
-// FindUserById find user by id
-func FindUserById(userId primitive.ObjectID) (*db.User, error) {
+// GetUserById find user by id
+func GetUserById(userId primitive.ObjectID) (*db.User, error) {
 	user := &db.User{}
-	err := mgm.Coll(user).FindByID(userId, user)
+	err := mgm.Coll(user).First(bson.M{"_id": userId}, user)
 	if err != nil {
 		return nil, errors.New("304: Not Modified")
 	}
@@ -45,8 +45,8 @@ func FindUserById(userId primitive.ObjectID) (*db.User, error) {
 	return user, nil
 }
 
-// FindUserByEmail find user by email
-func FindUserByEmail(email string) (*db.User, error) {
+// GetUserByEmail find user by email
+func GetUserByEmail(email string) (*db.User, error) {
 	user := &db.User{}
 	err := mgm.Coll(user).First(bson.M{"email": email}, user)
 	if err != nil {

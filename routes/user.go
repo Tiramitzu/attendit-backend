@@ -15,6 +15,14 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			"/@me/attendances",
 			controllers.GetUserAttendances,
 		)
+		users.GET(
+			"/@me/schedules",
+			controllers.GetUserSchedules,
+		)
+		users.POST(
+			"/@me/schedules",
+			controllers.CreateUserSchedule,
+		)
 		users.POST(
 			"/@me/attendances",
 			validators.CheckInValidator(),

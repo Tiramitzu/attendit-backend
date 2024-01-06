@@ -2,15 +2,12 @@ package controllers
 
 import (
 	"attendit/backend/models"
-	db "attendit/backend/models/db"
 	"attendit/backend/services"
 	redisServices "attendit/backend/services/redis"
-	"github.com/gin-gonic/gin/binding"
-	"net/http"
-	"time"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 )
 
 // GetCurrentUser godoc
@@ -39,7 +36,7 @@ func GetCurrentUser(c *gin.Context) {
 		return
 	}
 
-	user, err = services.FindUserById(userId.(primitive.ObjectID))
+	user, err = services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -74,7 +71,7 @@ func ModifyCurrentUser(c *gin.Context) {
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
 	userId, _ := c.Get("userId")
-	user, err := services.FindUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -116,7 +113,7 @@ func GetUserAttendances(c *gin.Context) {
 	}
 
 	userId, _ := c.Get("userId")
-	user, _ := services.FindUserById(userId.(primitive.ObjectID))
+	user, _ := services.GetUserById(userId.(primitive.ObjectID))
 
 	attendances, err := redisServices.GetUserAttendancesFromCache(user.ID)
 	if err == nil {

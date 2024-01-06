@@ -8,9 +8,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func FindAttendanceById(id primitive.ObjectID) (*db.Attendance, error) {
+func GetAttendanceById(id primitive.ObjectID) (*db.Attendance, error) {
 	attendance := &db.Attendance{}
-	err := mgm.Coll(attendance).FindByID(id, attendance)
+	err := mgm.Coll(attendance).First(bson.M{"_id": id}, attendance)
 
 	if err != nil {
 		return nil, err

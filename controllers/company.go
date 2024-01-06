@@ -116,7 +116,7 @@ func ModifyCompany(c *gin.Context) {
 		return
 	}
 
-	if user.Role != "admin" {
+	if user.AccessLevel < 1 {
 		response.Message = "You are not allowed to modify the company"
 		response.SendErrorResponse(c)
 		return

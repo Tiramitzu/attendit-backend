@@ -13,6 +13,20 @@ var passwordRule = []validation.Rule{
 	validation.Match(regexp.MustCompile("^\\S+$")).Error("cannot contain whitespaces"),
 }
 
+type ScheduleRequest struct {
+	Title     string `json:"title"`
+	StartTime string `json:"startTime"`
+	EndTime   string `json:"endTime"`
+}
+
+func (a ScheduleRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.Title, validation.Required),
+		validation.Field(&a.StartTime, validation.Required),
+		validation.Field(&a.EndTime, validation.Required),
+	)
+}
+
 type RegisterRequest struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`

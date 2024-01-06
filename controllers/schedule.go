@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+	"strconv"
 )
 
 // GetUserSchedules godoc
@@ -28,10 +29,15 @@ func GetUserSchedules(c *gin.Context) {
 		Success:    false,
 	}
 
+	page, _ := strconv.Atoi(c.Param("page"))
+	if page == 0 {
+		page = 1
+	}
+
 	userId, _ := c.Get("userId")
 	user, _ := services.GetUserById(userId.(primitive.ObjectID))
 
-	schedules, err := redisServices.GetUserSchedulesFromCache(user.ID)
+	schedules, err := redisServices.GetUserSchedulesFromCache(user.ID, page)
 	if err == nil {
 		response.StatusCode = http.StatusOK
 		response.Success = true
@@ -40,14 +46,14 @@ func GetUserSchedules(c *gin.Context) {
 		return
 	}
 
-	schedules, err = services.GetUserSchedules(user.ID)
+	schedules, err = services.GetUserSchedules(user.ID, page)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
 
-	redisServices.CacheUserSchedules(user.ID, schedules)
+	redisServices.CacheUserSchedules(user.ID, schedules, page)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true
@@ -100,14 +106,14 @@ func CreateUserSchedule(c *gin.Context) {
 		return
 	}
 
-	schedules, err := services.GetUserSchedules(user.ID)
+	schedules, err := services.GetUserSchedules(user.ID, 1)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
 
-	redisServices.CacheUserSchedules(user.ID, schedules)
+	redisServices.CacheUserSchedules(user.ID, schedules, 1)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true

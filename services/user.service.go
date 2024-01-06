@@ -68,10 +68,16 @@ func CheckUserMail(email string) error {
 	return nil
 }
 
-func GetUserAttendances(userId primitive.ObjectID) (*[]db.Attendance, error) {
-	attendances := &[]db.Attendance{}
-	attendance := &db.Attendance{}
-	_ = mgm.Coll(attendance).SimpleFind(bson.M{"userId": userId}, attendances)
+func GetUserAttendances(userId primitive.ObjectID, page int) (*[]db.Attendance, error) {
+	var attendances *[]db.Attendance
+	opts := options.Find()
+	opts.SetLimit(25)
+	opts.SetSkip(int64(page-1) * 25)
+	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{"userId": userId}, opts)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return attendances, nil
 }

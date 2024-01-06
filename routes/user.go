@@ -16,7 +16,17 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetUserAttendances,
 		)
 		users.GET(
+			"/@me/attendances/:page",
+			validators.PathPageValidator(),
+			controllers.GetUserAttendances,
+		)
+		users.GET(
 			"/@me/schedules",
+			controllers.GetUserSchedules,
+		)
+		users.GET(
+			"/@me/schedules/:page",
+			validators.PathPageValidator(),
 			controllers.GetUserSchedules,
 		)
 		users.POST(

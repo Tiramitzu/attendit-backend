@@ -10,16 +10,16 @@ import (
 	"time"
 )
 
-func getUserAttendanceByCompanyCacheKey(userId primitive.ObjectID) string {
-	return "req:cache:user:attendance:" + userId.Hex()
+func getUserAttendanceByCompanyCacheKey(userId primitive.ObjectID, page int) string {
+	return "req:cache:user:attendance:" + userId.Hex() + ":" + string(rune(page))
 }
 
-func CacheUserAttendancesByCompany(userId primitive.ObjectID, attendance *[]models.Attendance) {
+func CacheUserAttendancesByCompany(userId primitive.ObjectID, attendance *[]models.Attendance, page int) {
 	if !services.Config.UseRedis {
 		return
 	}
 
-	userAttendanceByCompanyCacheKey := getUserAttendanceByCompanyCacheKey(userId)
+	userAttendanceByCompanyCacheKey := getUserAttendanceByCompanyCacheKey(userId, page)
 
 	_ = services.GetRedisCache().Set(&cache.Item{
 		Ctx:   context.TODO(),
@@ -29,13 +29,13 @@ func CacheUserAttendancesByCompany(userId primitive.ObjectID, attendance *[]mode
 	})
 }
 
-func GetUserAttendancesFromCache(userId primitive.ObjectID) (*[]models.Attendance, error) {
+func GetUserAttendancesFromCache(userId primitive.ObjectID, page int) (*[]models.Attendance, error) {
 	if !services.Config.UseRedis {
 		return nil, errors.New("no redis client, set USE_REDIS in .env")
 	}
 
 	var attendances []models.Attendance
-	userAttendanceByCompanyCacheKey := getUserAttendanceByCompanyCacheKey(userId)
+	userAttendanceByCompanyCacheKey := getUserAttendanceByCompanyCacheKey(userId, page)
 	err := services.GetRedisCache().Get(context.TODO(), userAttendanceByCompanyCacheKey, &attendances)
 	return &attendances, err
 }

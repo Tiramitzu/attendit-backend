@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+	"strconv"
 )
 
 // GetCurrentUser godoc
@@ -112,10 +113,15 @@ func GetUserAttendances(c *gin.Context) {
 		Success:    false,
 	}
 
+	page, _ := strconv.Atoi(c.Param("page"))
+	if page == 0 {
+		page = 1
+	}
+
 	userId, _ := c.Get("userId")
 	user, _ := services.GetUserById(userId.(primitive.ObjectID))
 
-	attendances, err := redisServices.GetUserAttendancesFromCache(user.ID)
+	attendances, err := redisServices.GetUserAttendancesFromCache(user.ID, page)
 	if err == nil {
 		response.StatusCode = http.StatusOK
 		response.Success = true
@@ -124,7 +130,7 @@ func GetUserAttendances(c *gin.Context) {
 		return
 	}
 
-	attendances, err = services.GetUserAttendances(user.ID)
+	attendances, err = services.GetUserAttendances(user.ID, page)
 
 	if err != nil {
 		response.Message = err.Error()
@@ -132,7 +138,7 @@ func GetUserAttendances(c *gin.Context) {
 		return
 	}
 
-	redisServices.CacheUserAttendancesByCompany(user.ID, attendances)
+	redisServices.CacheUserAttendancesByCompany(user.ID, attendances, page)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true

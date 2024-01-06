@@ -72,6 +72,37 @@ func GetUserSchedules(c *gin.Context) {
 // @Success 200 {object} models.Response
 // @Failure 400 {object} models.Response
 // @Router /user/{userId}/schedules/{scheduleId} [get]
+func GetUserSchedule(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
+	scheduleId, _ := primitive.ObjectIDFromHex(c.Param("scheduleId"))
+	schedule, err := redisServices.GetScheduleFromCache(scheduleId)
+	if err == nil {
+		response.StatusCode = http.StatusOK
+		response.Success = true
+		response.Data = gin.H{"schedule": schedule, "cache": true}
+		response.SendResponse(c)
+		return
+	}
+
+	schedule, err = services.GetScheduleById(scheduleId)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	redisServices.CacheSchedule(schedule)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"schedule": schedule}
+	response.SendResponse(c)
+}
+
 // CreateUserSchedule godoc
 // @Summary Create user schedule
 // @Description Create user schedule

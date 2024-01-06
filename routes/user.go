@@ -29,6 +29,11 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			validators.PathPageValidator(),
 			controllers.GetUserSchedules,
 		)
+		users.GET(
+			"/@me/schedules/:scheduleId",
+			validators.PathScheduleIdValidator(),
+			controllers.GetUserSchedule,
+		)
 		users.POST(
 			"/@me/schedules",
 			controllers.CreateUserSchedule,

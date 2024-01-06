@@ -7,14 +7,44 @@ import (
 	"errors"
 	"github.com/go-redis/cache/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strconv"
 	"time"
 )
 
-func getUserSchedulesCacheKey(userId primitive.ObjectID) string {
-	return "req:cache:user:schedules:" + userId.Hex()
+func getUserScheduleCacheKey(scheduleId primitive.ObjectID) string {
+	return "req:cache:schedule:" + scheduleId.Hex()
 }
 
-func CacheUserSchedules(userId primitive.ObjectID, schedule *[]models.Schedule) {
+func CacheSchedule(schedule *models.Schedule) {
+	if !services.Config.UseRedis {
+		return
+	}
+
+	scheduleCacheKey := getUserScheduleCacheKey(schedule.ID)
+
+	_ = services.GetRedisCache().Set(&cache.Item{
+		Ctx:   context.TODO(),
+		Key:   scheduleCacheKey,
+		Value: schedule,
+		TTL:   time.Second * 30,
+	})
+}
+
+func GetScheduleFromCache(scheduleId primitive.ObjectID) (*models.Schedule, error) {
+	if !services.Config.UseRedis {
+		return nil, errors.New("no redis client, set USE_REDIS in .env")
+	}
+
+	var schedule models.Schedule
+	scheduleCacheKey := getUserScheduleCacheKey(scheduleId)
+	err := services.GetRedisCache().Get(context.TODO(), scheduleCacheKey, &schedule)
+	return &schedule, err
+}
+
+func getUserSchedulesCacheKey(userId primitive.ObjectID, page int) string {
+	return "req:cache:user:schedules:" + userId.Hex() + ":" + strconv.Itoa(page)
+}
+
 func CacheUserSchedules(userId primitive.ObjectID, schedule *[]models.Schedule, page int) {
 	if !services.Config.UseRedis {
 		return

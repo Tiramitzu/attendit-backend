@@ -22,6 +22,16 @@ func GetUserSchedules(userId primitive.ObjectID, page int) (*[]models.Schedule, 
 	return &schedules, nil
 }
 
+func GetScheduleById(id primitive.ObjectID) (*models.Schedule, error) {
+	schedule := &models.Schedule{}
+	err := mgm.Coll(schedule).FindByID(id, schedule)
+	if err != nil {
+		return nil, err
+	}
+
+	return schedule, nil
+}
+
 func CreateSchedule(schedule *models.Schedule) (*models.Schedule, error) {
 	err := mgm.Coll(schedule).Create(schedule)
 	if err != nil {

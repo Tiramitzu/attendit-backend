@@ -52,6 +52,20 @@ func PathAttendanceIdValidator() gin.HandlerFunc {
 	}
 }
 
+func PathScheduleIdValidator() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		id := c.Param("scheduleId")
+		err := validation.Validate(id, is.MongoID)
+		if err != nil {
+			models.SendErrorResponse(c, http.StatusBadRequest, "Invalid scheduleId: "+id)
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func PathPageValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 

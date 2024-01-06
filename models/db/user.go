@@ -11,7 +11,7 @@ type User struct {
 	Password         string `json:"-" bson:"password"`
 	FullName         string `json:"fullName" bson:"fullName"`
 	Phone            string `json:"phone" bson:"phone"`
-	Role             string `json:"role" bson:"role"`
+	AccessLevel      int    `json:"accessLevel" bson:"accessLevel"`
 }
 
 type UserClaims struct {
@@ -22,11 +22,11 @@ type UserClaims struct {
 
 func NewUser(email string, password string, fullName string, phone string) *User {
 	return &User{
-		Email:    email,
-		Password: password,
-		FullName: fullName,
-		Phone:    phone,
-		Role:     "user",
+		Email:       email,
+		Password:    password,
+		FullName:    fullName,
+		Phone:       phone,
+		AccessLevel: 0,
 	}
 }
 

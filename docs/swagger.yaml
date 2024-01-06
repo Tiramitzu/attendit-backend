@@ -1,5 +1,7 @@
 basePath: /
 definitions:
+  models.Company:
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -7,25 +9,24 @@ definitions:
       password:
         type: string
     type: object
-  models.NoteRequest:
+  models.ModifyUserRequest:
     properties:
-      content:
+      email:
         type: string
-      title:
+      fullName:
         type: string
-    type: object
-  models.RefreshRequest:
-    properties:
-      token:
+      phone:
         type: string
     type: object
   models.RegisterRequest:
     properties:
       email:
         type: string
-      name:
+      fullName:
         type: string
       password:
+        type: string
+      phone:
         type: string
     type: object
   models.Response:
@@ -78,34 +79,8 @@ paths:
       summary: Login
       tags:
       - auth
-  /auth/refresh:
-    post:
-      consumes:
-      - application/json
-      description: refreshes a user token
-      parameters:
-      - description: Refresh Request
-        in: body
-        name: req
-        required: true
-        schema:
-          $ref: '#/definitions/models.RefreshRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-      summary: Refresh
-      tags:
-      - auth
   /auth/register:
-    post:
+    put:
       consumes:
       - application/json
       description: registers a user
@@ -130,43 +105,61 @@ paths:
       summary: Register
       tags:
       - auth
-  /notes:
+  /company:
     get:
       consumes:
       - application/json
-      description: gets user notes with pagination
+      description: gets the company
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: GetCompany
+      tags:
+      - company
+    patch:
+      consumes:
+      - application/json
+      description: modifies the company
       parameters:
-      - description: Switch page by 'page'
-        in: query
+      - description: Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/models.Company'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Company'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Company'
+      summary: ModifyCompany
+      tags:
+      - company
+  /company/attendances/{page}:
+    get:
+      consumes:
+      - application/json
+      description: gets the company attendances
+      parameters:
+      - description: Page
+        in: path
         name: page
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Notes
-      tags:
-      - notes
-    post:
-      consumes:
-      - application/json
-      description: creates a new note
-      parameters:
-      - description: Note Request
-        in: body
-        name: req
         required: true
-        schema:
-          $ref: '#/definitions/models.NoteRequest'
+        type: integer
       produces:
       - application/json
       responses:
@@ -178,48 +171,20 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Create Note
+      summary: GetCompanyAttendances
       tags:
-      - notes
-  /notes/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: deletes note by id
-      parameters:
-      - description: Note ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a note
-      tags:
-      - notes
+      - company
+  /company/members/{page}:
     get:
       consumes:
       - application/json
-      description: get note by id
+      description: gets the company members
       parameters:
-      - description: Note ID
+      - description: Page
         in: path
-        name: id
+        name: page
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -231,43 +196,9 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get a note
+      summary: GetCompanyMembers
       tags:
-      - notes
-    put:
-      consumes:
-      - application/json
-      description: updates a note by id
-      parameters:
-      - description: Note ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Note Request
-        in: body
-        name: req
-        required: true
-        schema:
-          $ref: '#/definitions/models.NoteRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a note
-      tags:
-      - notes
+      - company
   /ping:
     get:
       consumes:
@@ -283,6 +214,219 @@ paths:
       summary: Ping
       tags:
       - ping
+  /user/{userId}/schedules:
+    post:
+      consumes:
+      - application/json
+      description: Create user schedule
+      parameters:
+      - description: Schedule title
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Schedule start time
+        in: body
+        name: startTime
+        required: true
+        schema:
+          type: string
+      - description: Schedule end time
+        in: body
+        name: endTime
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Create user schedule
+      tags:
+      - schedule
+  /user/{userId}/schedules/:page:
+    get:
+      consumes:
+      - application/json
+      description: Get user schedules
+      parameters:
+      - description: Page number
+        in: path
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user schedules
+      tags:
+      - schedule
+  /user/{userId}/schedules/{scheduleId}:
+    get:
+      consumes:
+      - application/json
+      description: Get user schedule
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: scheduleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user schedule
+      tags:
+      - schedule
+  /users/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: gets the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: GetCurrentUser
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      description: modifies the current user
+      parameters:
+      - description: Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/models.ModifyUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: ModifyCurrentUser
+      tags:
+      - user
+  /users/{userId}/attendances:
+    post:
+      consumes:
+      - application/json
+      description: checks in the user
+      parameters:
+      - description: IP Address
+        in: body
+        name: ipAddress
+        required: true
+        schema:
+          type: string
+      - description: Status
+        in: body
+        name: status
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: AttendanceCheckIn
+      tags:
+      - attendance
+  /users/{userId}/attendances/:page:
+    get:
+      consumes:
+      - application/json
+      description: gets the user attendances
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: GetUserAttendances
+      tags:
+      - attendance
+  /users/{userId}/attendances/{attendanceId}:
+    patch:
+      consumes:
+      - application/json
+      description: checks out the user
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: attendanceId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: AttendanceCheckOut
+      tags:
+      - attendance
 schemes:
 - http
 securityDefinitions:

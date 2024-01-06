@@ -95,10 +95,10 @@ func GetCompanyMembers(c *gin.Context) {
 // @Tags         company
 // @Accept       json
 // @Produce      json
-// @Param        req  body  models.Company
-// @Success      200  {object}  models.
-// @Failure      400  {object}  models.
-// @Router       /company [put]
+// @Param        req  body  models.Company  true  "Request"
+// @Success      200  {object}  models.Company
+// @Failure      400  {object}  models.Company
+// @Router       /company [patch]
 func ModifyCompany(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -144,8 +144,8 @@ func ModifyCompany(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        page  path  int  true  "Page"
-// @Success      200  {object}  models.
-// @Failure      400  {object}  models.
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
 // @Router       /company/attendances/{page} [get]
 func GetCompanyAttendances(c *gin.Context) {
 	response := &models.Response{

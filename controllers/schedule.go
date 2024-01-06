@@ -11,6 +11,17 @@ import (
 	"net/http"
 )
 
+// GetUserSchedules godoc
+// @Summary Get user schedules
+// @Description Get user schedules
+// @Tags schedule
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param page path int false "Page number"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.Response
+// @Router /user/{userId}/schedules/:page [get]
 func GetUserSchedules(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -44,6 +55,30 @@ func GetUserSchedules(c *gin.Context) {
 	response.SendResponse(c)
 }
 
+// GetUserSchedule godoc
+// @Summary Get user schedule
+// @Description Get user schedule
+// @Tags schedule
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param scheduleId path string true "Schedule ID"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.Response
+// @Router /user/{userId}/schedules/{scheduleId} [get]
+// CreateUserSchedule godoc
+// @Summary Create user schedule
+// @Description Create user schedule
+// @Tags schedule
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param title body string true "Schedule title"
+// @Param startTime body string true "Schedule start time"
+// @Param endTime body string true "Schedule end time"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.Response
+// @Router /user/{userId}/schedules [post]
 func CreateUserSchedule(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,

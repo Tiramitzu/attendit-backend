@@ -17,10 +17,11 @@ import (
 // @Tags         attendance
 // @Accept       json
 // @Produce      json
-// @Param        req  body      models.CheckInRequest
+// @Param        ipAddress  body  string  true  "IP Address"
+// @Param        status     body  string  true  "Status"
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
-// @Router       /users/@me/attendances [post]
+// @Router       /users/{userId}/attendances [post]
 func AttendanceCheckIn(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -87,7 +88,7 @@ func AttendanceCheckIn(c *gin.Context) {
 // @Param        attendanceId  path  string  true  "Attendance ID"
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
-// @Router       /users/@me/attendances/{attendanceId} [patch]
+// @Router       /users/{userId}/attendances/{attendanceId} [patch]
 func AttendanceCheckOut(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,

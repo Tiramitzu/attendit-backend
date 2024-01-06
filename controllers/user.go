@@ -18,7 +18,7 @@ import (
 // @Produce      json
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
-// @Router       /users/@me [get]
+// @Router       /users/{userId} [get]
 func GetCurrentUser(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -57,10 +57,10 @@ func GetCurrentUser(c *gin.Context) {
 // @Tags         user
 // @Accept       json
 // @Produce      json
-// @Param        req  body      models.ModifyUserRequest
+// @Param        req  body      models.ModifyUserRequest    true  "Request"
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
-// @Router       /users/@me [patch]
+// @Router       /users/{userId} [patch]
 func ModifyCurrentUser(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -105,7 +105,7 @@ func ModifyCurrentUser(c *gin.Context) {
 // @Produce      json
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
-// @Router       /users/@me/attendances [get]
+// @Router       /users/{userId}/attendances/:page [get]
 func GetUserAttendances(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,

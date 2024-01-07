@@ -30,7 +30,7 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetUserSchedules,
 		)
 		users.GET(
-			"/@me/schedules/:scheduleId",
+			"/@me/schedule/:scheduleId",
 			validators.PathScheduleIdValidator(),
 			controllers.GetUserSchedule,
 		)

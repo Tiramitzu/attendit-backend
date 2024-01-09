@@ -28,6 +28,8 @@ func AttendanceCheckIn(c *gin.Context) {
 		Success:    false,
 	}
 
+	isIpSame := false
+
 	var requestBody models.CheckInRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
@@ -38,20 +40,31 @@ func AttendanceCheckIn(c *gin.Context) {
 		return
 	}
 
-	for _, ip := range company.IPAddresses {
-		if ip == requestBody.IpAddress {
-			break
-		}
-		response.Message = "Invalid IP Address"
+	ipAddress, err := services.GetClientIP(c.Request)
+	if err != nil {
+		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
 
-	currentDate := time.Now().Format("02-01-2006")
-	currentTime := time.Now().Format("15:04:05")
+	for _, ip := range company.IPAddresses {
+		if ip == ipAddress {
+			isIpSame = true
+			break
+		}
+	}
 
-	userId, _ := c.Get("userId")
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	if !isIpSame {
+		response.Message = "You are not allowed to check in from this IP address"
+		response.SendErrorResponse(c)
+		return
+	}
+
+	loc := time.FixedZone("UTC", 7*60*60)
+	currentDate := time.Now().In(loc).Format("02-01-2006")
+	currentTime := time.Now().In(loc).Format("15:04:05")
+
+	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -65,7 +78,7 @@ func AttendanceCheckIn(c *gin.Context) {
 		return
 	}
 
-	attendance := db.NewAttendance(user.ID, requestBody.IpAddress, currentDate, requestBody.Status, currentTime, "")
+	attendance := db.NewAttendance(user.ID, ipAddress, currentDate, requestBody.Status, currentTime, "")
 	newAttendance, err := services.AttendanceCheckIn(attendance)
 	if err != nil {
 		response.Message = err.Error()

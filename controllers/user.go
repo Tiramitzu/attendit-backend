@@ -37,7 +37,7 @@ func GetCurrentUser(c *gin.Context) {
 		return
 	}
 
-	user, err = services.GetUserById(userId.(primitive.ObjectID))
+	user, err = services.GetUserByToken(c.GetHeader("Authorization")[7:])
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -71,8 +71,7 @@ func ModifyCurrentUser(c *gin.Context) {
 	var requestBody models.ModifyUserRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	userId, _ := c.Get("userId")
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -118,11 +117,16 @@ func GetUserAttendances(c *gin.Context) {
 		page = 1
 	}
 
-	userId, _ := c.Get("userId")
-	user, _ := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
 
-	attendances, err := redisServices.GetUserAttendancesFromCache(user.ID, page)
-	if err == nil {
+	// Try to get attendances from cache
+	attendances, cacheErr := redisServices.GetUserAttendancesFromCache(user.ID, page)
+	if cacheErr == nil {
 		response.StatusCode = http.StatusOK
 		response.Success = true
 		response.Data = gin.H{"attendances": attendances, "cache": true}
@@ -130,16 +134,21 @@ func GetUserAttendances(c *gin.Context) {
 		return
 	}
 
+	// If cache retrieval fails, get attendances from services
 	attendances, err = services.GetUserAttendances(user.ID, page)
-
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
 
-	redisServices.CacheUserAttendancesByCompany(user.ID, attendances, page)
+	// If attendances is nil, return a success response
+	if attendances != nil {
+		// Cache attendances for future use
+		redisServices.CacheUserAttendancesByCompany(user.ID, attendances, page)
+	}
 
+	// Send a success response
 	response.StatusCode = http.StatusOK
 	response.Success = true
 	response.Data = gin.H{"attendances": attendances}

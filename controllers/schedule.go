@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // GetUserSchedules godoc
@@ -34,8 +35,12 @@ func GetUserSchedules(c *gin.Context) {
 		page = 1
 	}
 
-	userId, _ := c.Get("userId")
-	user, _ := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
 
 	schedules, err := redisServices.GetUserSchedulesFromCache(user.ID, page)
 	if err == nil {
@@ -125,12 +130,19 @@ func CreateUserSchedule(c *gin.Context) {
 	var requestBody models.ScheduleRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	userId, _ := c.Get("userId")
-	user, _ := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
 
-	schedule := db.NewSchedule(user.ID, requestBody.Title, requestBody.StartTime, requestBody.EndTime)
+	loc := time.FixedZone("UTC", 7*60*60)
+	currentDate := time.Now().In(loc).Format("02-01-2006")
 
-	schedule, err := services.CreateSchedule(schedule)
+	schedule := db.NewSchedule(user.ID, requestBody.Title, requestBody.StartTime, requestBody.EndTime, currentDate)
+
+	schedule, err = services.CreateSchedule(schedule)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

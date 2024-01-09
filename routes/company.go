@@ -12,7 +12,6 @@ func CompanyRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	{
 		companies.GET(
 			"",
-			validators.PathIdValidator(),
 			controllers.GetCompany,
 		)
 		companies.GET(

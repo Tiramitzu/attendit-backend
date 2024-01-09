@@ -8,6 +8,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
+	"net"
+	"net/http"
+	"strings"
 )
 
 // CreateUser create a user record
@@ -46,6 +49,23 @@ func GetUserById(userId primitive.ObjectID) (*db.User, error) {
 	return user, nil
 }
 
+// GetUserByToken find user by token
+func GetUserByToken(token string) (*db.User, error) {
+	user := &db.User{}
+	tkn := &db.Token{}
+	err := mgm.Coll(tkn).First(bson.M{"token": token}, tkn)
+	if err != nil {
+		return nil, errors.New("304: Not Modified")
+	}
+
+	err = mgm.Coll(user).First(bson.M{"_id": tkn.User}, user)
+	if err != nil {
+		return nil, errors.New("304: Not Modified")
+	}
+
+	return user, nil
+}
+
 // GetUserByEmail find user by email
 func GetUserByEmail(email string) (*db.User, error) {
 	user := &db.User{}
@@ -69,8 +89,8 @@ func CheckUserMail(email string) error {
 	return nil
 }
 
-func GetUserAttendances(userId primitive.ObjectID, page int) (*[]db.Attendance, error) {
-	var attendances *[]db.Attendance
+func GetUserAttendances(userId primitive.ObjectID, page int) ([]db.Attendance, error) {
+	var attendances []db.Attendance
 	opts := options.Find()
 	opts.SetLimit(25)
 	opts.SetSkip(int64(page-1) * 25)
@@ -81,4 +101,32 @@ func GetUserAttendances(userId primitive.ObjectID, page int) (*[]db.Attendance, 
 	}
 
 	return attendances, nil
+}
+
+func GetClientIP(r *http.Request) (string, error) {
+	ips := r.Header.Get("X-Forwarded-For")
+	splitIps := strings.Split(ips, ",")
+
+	if len(splitIps) > 0 {
+		netIP := net.ParseIP(splitIps[len(splitIps)-1])
+		if netIP != nil {
+			return netIP.String(), nil
+		}
+	}
+
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return "", err
+	}
+
+	netIP := net.ParseIP(ip)
+	if netIP != nil {
+		ip := netIP.String()
+		if ip == "::1" {
+			return "127.0.0.1", nil
+		}
+		return ip, nil
+	}
+
+	return "", errors.New("IP not found")
 }

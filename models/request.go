@@ -46,13 +46,11 @@ func (a RegisterRequest) Validate() error {
 }
 
 type CheckInRequest struct {
-	IpAddress string `json:"ipAddress"`
-	Status    string `json:"status"`
+	Status string `json:"status"`
 }
 
 func (a CheckInRequest) Validate() error {
 	return validation.ValidateStruct(&a,
-		validation.Field(&a.IpAddress, Required),
 		validation.Field(&a.Status, Required),
 	)
 }

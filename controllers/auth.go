@@ -94,6 +94,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	if user.IsVerified == false {
+		response.Message = "Please contact your admin to verify your account"
+		response.SendErrorResponse(c)
+		return
+	}
+
 	accessToken, err := services.GetTokenById(user.ID)
 	if err != nil {
 		response.Message = err.Error()

@@ -12,6 +12,7 @@ type User struct {
 	FullName         string `json:"fullName" bson:"fullName"`
 	Phone            string `json:"phone" bson:"phone"`
 	AccessLevel      int    `json:"accessLevel" bson:"accessLevel"`
+	IsVerified       bool   `json:"isVerified" bson:"isVerified"`
 }
 
 type UserClaims struct {
@@ -27,6 +28,7 @@ func NewUser(email string, password string, fullName string, phone string) *User
 		FullName:    fullName,
 		Phone:       phone,
 		AccessLevel: 0,
+		IsVerified:  false,
 	}
 }
 

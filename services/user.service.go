@@ -71,7 +71,7 @@ func GetUserByEmail(email string) (*db.User, error) {
 	user := &db.User{}
 	err := mgm.Coll(user).First(bson.M{"email": email}, user)
 	if err != nil {
-		return nil, errors.New("Email and password don't match")
+		return nil, errors.New("Email dan password tidak cocok")
 	}
 
 	return user, nil

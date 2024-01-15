@@ -108,7 +108,8 @@ func AttendanceCheckOut(c *gin.Context) {
 		Success:    false,
 	}
 
-	currentTime := time.Now().Format("15:04:05")
+	loc := time.FixedZone("UTC", 7*60*60)
+	currentTime := time.Now().In(loc).Format("15:04:05")
 
 	attendanceIdHex := c.Param("attendanceId")
 	attendanceId, err := primitive.ObjectIDFromHex(attendanceIdHex)

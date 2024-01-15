@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"attendit/backend/docs"
 	"attendit/backend/middlewares"
@@ -17,7 +19,27 @@ func New() *gin.Engine {
 	r := gin.New()
 	initRoute(r)
 
-	r.Use(gin.LoggerWithWriter(middlewares.LogWriter()))
+	r.Use(gin.LoggerWithConfig(
+		gin.LoggerConfig{
+			Formatter: func(param gin.LogFormatterParams) string {
+				param.ClientIP = getUserIP(param.Request)
+				param.TimeStamp = time.Now().In(time.FixedZone("UTC", 7*60*60))
+				return fmt.Sprintf(
+					"[GIN] %v |%s %3d %s| %13v | %15s |%s %-7s %s %#v\n",
+					param.TimeStamp.Format("2006/01/02 - 15:04:05"),
+					param.StatusCodeColor(),
+					param.StatusCode,
+					param.ResetColor(),
+					param.Latency,
+					param.ClientIP,
+					param.MethodColor(),
+					param.Method,
+					param.ResetColor(),
+					param.Path,
+				)
+			},
+			Output: middlewares.LogWriter(),
+		}))
 	r.Use(gin.CustomRecovery(middlewares.AppRecovery()))
 	r.Use(middlewares.CORSMiddleware())
 
@@ -54,4 +76,19 @@ func InitGin() {
 	gin.DisableConsoleColor()
 	gin.SetMode(services.Config.Mode)
 	// do some other initialization staff
+}
+
+func getUserIP(httpServer *http.Request) string {
+	var userIP string
+	if len(httpServer.Header.Get("CF-Connecting-IP")) > 1 {
+		userIP = httpServer.Header.Get("CF-Connecting-IP")
+	} else if len(httpServer.Header.Get("X-Forwarded-For")) > 1 {
+		userIP = httpServer.Header.Get("X-Forwarded-For")
+	} else if len(httpServer.Header.Get("X-Real-IP")) > 1 {
+		userIP = httpServer.Header.Get("X-Real-IP")
+	} else {
+		userIP = httpServer.RemoteAddr
+	}
+
+	return userIP
 }

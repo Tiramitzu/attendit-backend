@@ -94,6 +94,7 @@ func GetUserAttendances(userId primitive.ObjectID, page int) ([]db.Attendance, e
 	opts := options.Find()
 	opts.SetLimit(25)
 	opts.SetSkip(int64(page-1) * 25)
+	opts.SetSort(bson.M{"createdAt": -1})
 	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{"userId": userId}, opts)
 
 	if err != nil {

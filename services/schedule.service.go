@@ -13,6 +13,7 @@ func GetUserSchedules(userId primitive.ObjectID, page int) (*[]models.Schedule, 
 	opts := options.Find()
 	opts.SetLimit(25)
 	opts.SetSkip(int64((page - 1) * 25))
+	opts.SetSort(bson.M{"createdAt": -1})
 	err := mgm.Coll(&models.Schedule{}).SimpleFind(&schedules, bson.M{"userId": userId}, opts)
 
 	if err != nil {

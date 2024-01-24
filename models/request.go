@@ -10,8 +10,8 @@ import (
 var Required = validation.Required.Error("tidak boleh kosong")
 
 var passwordRule = []validation.Rule{
-	validation.Required,
-	validation.Length(8, 32),
+	Required,
+	validation.Length(8, 32).Error("harus memiliki 8-32 karakter"),
 	validation.Match(regexp.MustCompile("^\\S+$")).Error("tidak boleh mengandung spasi"),
 }
 

@@ -55,7 +55,7 @@ func AttendanceCheckIn(c *gin.Context) {
 	}
 
 	if !isIpSame {
-		response.Message = "You are not allowed to check in from this IP address"
+		response.Message = "Anda tidak diizinkan untuk melakukan absensi dari alamat IP ini."
 		response.SendErrorResponse(c)
 		return
 	}
@@ -73,7 +73,7 @@ func AttendanceCheckIn(c *gin.Context) {
 
 	getAttendance, err := services.GetAttendanceByUserAndDate(user.ID, currentDate)
 	if getAttendance != nil {
-		response.Message = "You have already checked in for today"
+		response.Message = "Anda sudah melakukan absensi untuk hari ini."
 		response.SendErrorResponse(c)
 		return
 	}
@@ -121,12 +121,12 @@ func AttendanceCheckOut(c *gin.Context) {
 
 	attendance, _ := services.GetAttendanceById(attendanceId)
 	if attendance == nil {
-		response.Message = "Attendance not found"
+		response.Message = "Absensi tidak ditemukan"
 		response.SendErrorResponse(c)
 		return
 	}
 	if attendance.CheckOut != "" {
-		response.Message = "You have already checked out for today"
+		response.Message = "Anda telah melakukan absen keluar untuk hari ini"
 		response.SendErrorResponse(c)
 		return
 	}
@@ -134,7 +134,7 @@ func AttendanceCheckOut(c *gin.Context) {
 
 	updatedAttendance, err := services.AttendanceCheckOut(attendance)
 	if err != nil {
-		response.Message = "Attendance failed"
+		response.Message = "Absen keluar gagal."
 		response.SendErrorResponse(c)
 		return
 	}

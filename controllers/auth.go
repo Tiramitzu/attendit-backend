@@ -89,13 +89,13 @@ func Login(c *gin.Context) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(requestBody.Password))
 	if err != nil {
-		response.Message = "Email and password don't match"
+		response.Message = "Email dan password tidak cocok."
 		response.SendErrorResponse(c)
 		return
 	}
 
 	if user.IsVerified == false {
-		response.Message = "Please contact your admin to verify your account"
+		response.Message = "Silahkan hubungi admin untuk memverifikasi akun Anda."
 		response.SendErrorResponse(c)
 		return
 	}

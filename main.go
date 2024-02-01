@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-co-op/gocron/v2"
 	"log"
 	"net/http"
 	"os"
@@ -47,6 +48,39 @@ func main() {
 		Handler:      router,
 	}
 
+	s, err := gocron.NewScheduler()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = s.NewJob(
+		gocron.WeeklyJob(
+			1,
+			gocron.NewWeekdays(time.Saturday),
+			gocron.NewAtTimes(
+				gocron.NewAtTime(1, 30, 0),
+				gocron.NewAtTime(12, 0, 30),
+			),
+		),
+		gocron.NewTask(
+			func() {
+				_, err := services.DeleteUnVerifiedUsers()
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				log.Println("Unverified Users Deleted.")
+			},
+		),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Cron Job Started.")
+	s.Start()
+
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			log.Printf("listen: %s\n", err)
@@ -58,7 +92,13 @@ func main() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("Shutdown Server ...")
+	log.Println("Shutting down cron job...")
+
+	if err := s.Shutdown(); err != nil {
+		log.Fatal("Cron Job Shutdown:", err)
+	}
+
+	log.Println("Shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()

@@ -38,17 +38,6 @@ func VerifyUser(userId primitive.ObjectID) (*db.User, error) {
 	return user, nil
 }
 
-func GetUnVerifiedUsers() ([]*db.User, error) {
-	var users []*db.User
-	err := mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{"isVerified": false})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return users, nil
-}
-
 func DeleteUnVerifiedUsers() ([]*db.User, error) {
 	var users []*db.User
 	err := mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{"isVerified": false})

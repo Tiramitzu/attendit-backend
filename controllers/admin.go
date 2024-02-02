@@ -77,25 +77,53 @@ func GetUsers(c *gin.Context) {
 	response.SendResponse(c)
 }
 
-func VerifyUser(c *gin.Context) {
+// CreateUser godoc
+// @Summary      CreateUser
+// @Description  registers a user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        req  body      models.CreateUser true "Register Request"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /auth/register [put]
+func CreateUser(c *gin.Context) {
+	var requestBody models.CreateUser
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
 		Success:    false,
 	}
 
-	userId, _ := c.Get("userId")
-	user, err := services.VerifyUser(userId.(primitive.ObjectID))
-
+	err := services.CheckUserMail(requestBody.Email)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
 
-	redisServices.CacheUser(user)
+	user, err := services.CreateUser(requestBody.Email, requestBody.Password, requestBody.FullName, requestBody.Phone)
+	if err != nil {
+		response.StatusCode = http.StatusInternalServerError
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	_ = c.ShouldBindBodyWith(&user, binding.JSON)
+
+	// generate access tokens
+	accessToken, err := services.GenerateAccessTokens(user)
+	if err != nil {
+		response.StatusCode = http.StatusInternalServerError
+		response.Message = err.Error()
+		response.SendResponse(c)
+		return
+	}
 
 	response.StatusCode = http.StatusOK
 	response.Success = true
-	response.Data = gin.H{"user": user}
+	response.Data = gin.H{"user": user, "token": accessToken.GetResponseString()}
 	response.SendResponse(c)
 }

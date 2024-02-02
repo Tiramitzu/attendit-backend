@@ -29,14 +29,14 @@ func (a ScheduleRequest) Validate() error {
 	)
 }
 
-type RegisterRequest struct {
+type CreateUser struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	FullName string `json:"fullName"`
 	Phone    string `json:"phone"`
 }
 
-func (a RegisterRequest) Validate() error {
+func (a CreateUser) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Email, Required, is.Email.Error("tidak valid")),
 		validation.Field(&a.Password, passwordRule...),

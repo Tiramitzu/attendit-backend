@@ -9,6 +9,7 @@ import (
 func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	admin := router.Group("/admin", handlers...)
 	{
+		admin.PUT("/user", controllers.CreateUser)
 		admin.GET(
 			"/user/:id",
 			validators.PathIdValidator(),

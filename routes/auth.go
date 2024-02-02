@@ -10,12 +10,6 @@ import (
 func AuthRoute(router *gin.RouterGroup) {
 	auth := router.Group("/auth")
 	{
-		auth.PUT(
-			"/register",
-			validators.RegisterValidator(),
-			controllers.Register,
-		)
-
 		auth.POST(
 			"/login",
 			validators.LoginValidator(),

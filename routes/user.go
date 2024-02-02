@@ -34,6 +34,14 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			validators.PathScheduleIdValidator(),
 			controllers.GetUserSchedule,
 		)
+		users.GET(
+			"/@me/paidLeave",
+			controllers.GetActivePaidLeave,
+		)
+		users.POST(
+			"/@me/paidLeave",
+			controllers.CreatePaidLeave,
+		)
 		users.POST(
 			"/@me/schedules",
 			controllers.CreateUserSchedule,

@@ -15,6 +15,22 @@ var passwordRule = []validation.Rule{
 	validation.Match(regexp.MustCompile("^\\S+$")).Error("tidak boleh mengandung spasi"),
 }
 
+type PaidLeaveRequest struct {
+	UserId     string `json:"userId"`
+	Reason     string `json:"reason"`
+	Accepted   bool   `json:"accepted"`
+	AcceptedBy string `json:"acceptedBy"`
+}
+
+func (a PaidLeaveRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.UserId, Required),
+		validation.Field(&a.Reason, Required),
+		validation.Field(&a.Accepted, Required),
+		validation.Field(&a.AcceptedBy, Required),
+	)
+}
+
 type ScheduleRequest struct {
 	Title     string `json:"title"`
 	StartTime string `json:"startTime"`

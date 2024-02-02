@@ -5,11 +5,22 @@ import (
 	"attendit/backend/services"
 	redisServices "attendit/backend/services/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"strconv"
 )
 
+// GetUser godoc
+// @Summary      GetUser
+// @Description  gets a user
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        userId path string true "User ID"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /users/{userId} [get]
 func GetUser(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
@@ -41,6 +52,16 @@ func GetUser(c *gin.Context) {
 	response.SendResponse(c)
 }
 
+// GetUsers godoc
+// @Summary      GetUsers
+// @Description  gets users
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        page path string true "Page"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /users/{page} [get]
 func GetUsers(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,

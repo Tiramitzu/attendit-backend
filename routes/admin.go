@@ -14,11 +14,6 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			validators.PathIdValidator(),
 			controllers.GetUser,
 		)
-		admin.PATCH(
-			"/user/:id",
-			validators.PathIdValidator(),
-			controllers.VerifyUser,
-		)
 		admin.GET("/users", controllers.GetUsers)
 		admin.GET(
 			"/users/:page",

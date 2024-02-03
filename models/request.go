@@ -87,6 +87,7 @@ type ModifyUserRequest struct {
 	Email    string `json:"email"`
 	FullName string `json:"fullName"`
 	Phone    string `json:"phone"`
+	Password string `json:"password"`
 }
 
 func (a ModifyUserRequest) Validate() error {
@@ -94,5 +95,6 @@ func (a ModifyUserRequest) Validate() error {
 		validation.Field(&a.Email, is.Email.Error(" tidak valid")),
 		validation.Field(&a.FullName, validation.Length(3, 0).Error("harus lebih dari 3 karakter")),
 		validation.Field(&a.Phone, validation.Length(11, 14).Error("harus terdiri dari 11-14 karakter")),
+		validation.Field(&a.Password, passwordRule...),
 	)
 }

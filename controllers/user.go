@@ -81,6 +81,7 @@ func ModifyCurrentUser(c *gin.Context) {
 	user.Email = requestBody.Email
 	user.FullName = requestBody.FullName
 	user.Phone = requestBody.Phone
+	user.Password = requestBody.Password
 
 	updatedUser, err := services.UpdateUser(user)
 	if err != nil {

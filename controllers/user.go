@@ -115,13 +115,14 @@ func GetUserAttendances(c *gin.Context) {
 		Success:    false,
 	}
 
-	page, _ := strconv.Atoi(c.Param("page"))
+	page, _ := strconv.Atoi(c.Query("page"))
 	userId, _ := c.Get("userId")
 	if page == 0 {
 		page = 1
 	}
 
 	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+
 	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()

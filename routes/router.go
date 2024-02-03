@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"attendit/backend/middlewares/validators"
 	"fmt"
 	"net/http"
 	"time"

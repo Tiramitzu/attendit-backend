@@ -91,14 +91,13 @@ func PathScheduleIdValidator() gin.HandlerFunc {
 	}
 }
 
-func PathPageValidator() gin.HandlerFunc {
+func QueryPageValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		page := c.Param("page")
+		page := c.Query("page")
 		err := validation.Validate(page, is.Digit)
 		if err != nil {
-			models.SendErrorResponse(c, http.StatusBadRequest, "Invalid page: "+page)
-			return
+			page = "1"
 		}
 
 		c.Next()

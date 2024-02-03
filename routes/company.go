@@ -20,9 +20,9 @@ func CompanyRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetCompanyMembers,
 		)
 		companies.GET(
-			"/members/:page",
+			"/members?page=:page",
 			validators.PathIdValidator(),
-			validators.PathPageValidator(),
+			validators.QueryPageValidator(),
 			controllers.GetCompanyMembers,
 		)
 		companies.GET(
@@ -31,9 +31,9 @@ func CompanyRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetCompanyAttendances,
 		)
 		companies.GET(
-			"/attendances/:page",
+			"/attendances?page=:page",
 			validators.PathIdValidator(),
-			validators.PathPageValidator(),
+			validators.QueryPageValidator(),
 			controllers.GetCompanyAttendances,
 		)
 		companies.PATCH(

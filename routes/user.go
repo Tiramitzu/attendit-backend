@@ -12,9 +12,8 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	{
 		users.GET("/", controllers.GetCurrentUser)
 		users.GET(
-			"/@me/attendances/:page",
-			validators.PathPageValidator(),
 			"/attendances",
+			validators.QueryPageValidator(),
 			controllers.GetUserAttendances,
 		)
 		users.GET(
@@ -22,9 +21,8 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetUserSchedules,
 		)
 		users.GET(
-			"/@me/schedules/:page",
-			validators.PathPageValidator(),
 			"/schedules?page=:page",
+			validators.QueryPageValidator(),
 			controllers.GetUserSchedules,
 		)
 		users.GET(
@@ -37,10 +35,6 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetActivePaidLeave,
 		)
 		users.POST(
-			"/@me/paidLeave",
-			"/attendances",
-		)
-		users.POST(
 			"/paidLeave",
 			controllers.CreatePaidLeave,
 		)
@@ -49,7 +43,7 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.CreateUserSchedule,
 		)
 		users.POST(
-			"/@me/attendances",
+			"/attendances",
 			validators.CheckInValidator(),
 			controllers.AttendanceCheckIn,
 		)

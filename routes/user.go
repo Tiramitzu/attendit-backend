@@ -8,42 +8,44 @@ import (
 )
 
 func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
-	users := router.Group("/users", handlers...)
+	users := router.Group("/users/:userId", handlers...)
 	{
-		users.GET("/@me", controllers.GetCurrentUser)
-		users.GET(
-			"/@me/attendances",
-			controllers.GetUserAttendances,
-		)
+		users.GET("/", controllers.GetCurrentUser)
 		users.GET(
 			"/@me/attendances/:page",
 			validators.PathPageValidator(),
+			"/attendances",
 			controllers.GetUserAttendances,
 		)
 		users.GET(
-			"/@me/schedules",
+			"/schedules",
 			controllers.GetUserSchedules,
 		)
 		users.GET(
 			"/@me/schedules/:page",
 			validators.PathPageValidator(),
+			"/schedules?page=:page",
 			controllers.GetUserSchedules,
 		)
 		users.GET(
-			"/@me/schedule/:scheduleId",
+			"/schedule/:scheduleId",
 			validators.PathScheduleIdValidator(),
 			controllers.GetUserSchedule,
 		)
 		users.GET(
-			"/@me/paidLeave",
+			"/paidLeave",
 			controllers.GetActivePaidLeave,
 		)
 		users.POST(
 			"/@me/paidLeave",
+			"/attendances",
+		)
+		users.POST(
+			"/paidLeave",
 			controllers.CreatePaidLeave,
 		)
 		users.POST(
-			"/@me/schedules",
+			"/schedules",
 			controllers.CreateUserSchedule,
 		)
 		users.POST(
@@ -52,10 +54,10 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.AttendanceCheckIn,
 		)
 		users.PATCH(
-			"/@me/attendances/:attendanceId",
+			"/attendances/:attendanceId",
 			validators.PathAttendanceIdValidator(),
 			controllers.AttendanceCheckOut,
 		)
-		users.PATCH("/@me", controllers.ModifyCurrentUser)
+		users.PATCH("/", controllers.ModifyCurrentUser)
 	}
 }

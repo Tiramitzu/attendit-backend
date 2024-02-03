@@ -166,13 +166,12 @@ func UpdateUser(c *gin.Context) {
 		Success:    false,
 	}
 
-	userIdHex := c.Param("userId")
-	userId, _ := primitive.ObjectIDFromHex(userIdHex)
+	userId, _ := c.Get("userId")
 
 	var requestBody models.ModifyUserRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	user, err := services.GetUserById(userId)
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

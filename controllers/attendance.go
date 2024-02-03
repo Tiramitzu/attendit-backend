@@ -60,11 +60,13 @@ func AttendanceCheckIn(c *gin.Context) {
 		return
 	}
 
+	userId, _ := c.Get("userId")
+
 	loc := time.FixedZone("UTC", 7*60*60)
 	currentDate := time.Now().In(loc).Format("02-01-2006")
 	currentTime := time.Now().In(loc).Format("15:04:05")
 
-	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

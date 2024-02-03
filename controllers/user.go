@@ -37,7 +37,7 @@ func GetCurrentUser(c *gin.Context) {
 		return
 	}
 
-	user, err = services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	user, err = services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -71,7 +71,9 @@ func ModifyCurrentUser(c *gin.Context) {
 	var requestBody models.ModifyUserRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	userId, _ := c.Get("userId")
+
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -114,11 +116,13 @@ func GetUserAttendances(c *gin.Context) {
 	}
 
 	page, _ := strconv.Atoi(c.Param("page"))
+	userId, _ := c.Get("userId")
 	if page == 0 {
 		page = 1
 	}
 
 	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

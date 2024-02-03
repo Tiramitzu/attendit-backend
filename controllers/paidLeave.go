@@ -25,7 +25,9 @@ func CreatePaidLeave(c *gin.Context) {
 		Success:    false,
 	}
 
-	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	userId, _ := c.Get("userId")
+
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -66,7 +68,9 @@ func GetActivePaidLeave(c *gin.Context) {
 		Success:    false,
 	}
 
-	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	userId, _ := c.Get("userId")
+
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

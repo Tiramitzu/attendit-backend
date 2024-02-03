@@ -35,7 +35,9 @@ func GetUserSchedules(c *gin.Context) {
 		page = 1
 	}
 
-	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	userId, _ := c.Get("userId")
+
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -130,7 +132,9 @@ func CreateUserSchedule(c *gin.Context) {
 	var requestBody models.ScheduleRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	userId, _ := c.Get("userId")
+
+	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

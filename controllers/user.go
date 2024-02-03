@@ -121,7 +121,23 @@ func GetUserAttendances(c *gin.Context) {
 		page = 1
 	}
 
-	user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+	fromDate := c.Query("from")
+	toDate := c.Query("to")
+
+	if fromDate != "" && toDate != "" {
+		attendances, err := services.GetUserAttendancesByDate(userId.(primitive.ObjectID), fromDate, toDate, page)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+			return
+		}
+
+		response.StatusCode = http.StatusOK
+		response.Success = true
+		response.Data = gin.H{"attendances": attendances}
+		response.SendResponse(c)
+		return
+	}
 
 	user, err := services.GetUserById(userId.(primitive.ObjectID))
 	if err != nil {

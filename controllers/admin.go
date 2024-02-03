@@ -148,3 +148,53 @@ func CreateUser(c *gin.Context) {
 	response.Data = gin.H{"user": user, "token": accessToken.GetResponseString()}
 	response.SendResponse(c)
 }
+
+// UpdateUser godoc
+// @Summary      UpdateUser
+// @Description  updates a user
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        userId path string true "User ID"
+// @Param        req  body      models.ModifyUserRequest true "Update Request"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /users/{userId} [patch]
+func UpdateUser(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
+	userIdHex := c.Param("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex)
+
+	var requestBody models.ModifyUserRequest
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+
+	user, err := services.GetUserById(userId)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	user.Email = requestBody.Email
+	user.FullName = requestBody.FullName
+	user.Phone = requestBody.Phone
+	user.Password = requestBody.Password
+
+	updatedUser, err := services.UpdateUser(user)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	redisServices.CacheUser(updatedUser)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"user": updatedUser}
+	response.SendResponse(c)
+}

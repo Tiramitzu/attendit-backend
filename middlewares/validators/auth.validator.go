@@ -8,20 +8,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-func RegisterValidator() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		var registerRequest models.RegisterRequest
-		_ = c.ShouldBindBodyWith(&registerRequest, binding.JSON)
-
-		if err := registerRequest.Validate(); err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		}
-
-		c.Next()
-	}
-}
-
 func LoginValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 

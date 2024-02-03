@@ -47,8 +47,6 @@ func main() {
 		Handler:      router,
 	}
 
-	log.Println("Cron Job Started.")
-
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			log.Printf("listen: %s\n", err)

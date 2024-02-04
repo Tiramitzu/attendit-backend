@@ -25,21 +25,38 @@ func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
 
 func GetPaidLeaves() ([]*db.PaidLeave, error) {
 	var paidLeaves []*db.PaidLeave
-	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{})
+	var users []*db.User
 
+	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+		return nil, errors.New("Gagal mendapatkan data cuti")
+	}
+
+	err = mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{})
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, nil
 		}
 
-		return nil, errors.New("Gagal mendapatkan data cuti")
+		return nil, errors.New("Gagal mendapatkan data user")
+	}
+
+	for _, paidLeave := range paidLeaves {
+		for _, user := range users {
+			if user.ID == paidLeave.UserId {
+				paidLeave.User = user
+			}
+		}
 	}
 
 	return paidLeaves, nil
 }
 
 func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate string, days int) (*db.PaidLeave, error) {
-	paidLeave := db.NewPaidLeave(userId, false, primitive.NilObjectID, reason, startDate, days)
+	paidLeave := db.NewPaidLeave(userId, 0, primitive.NilObjectID, reason, startDate, days)
 	err := mgm.Coll(paidLeave).Create(paidLeave)
 
 	if err != nil {

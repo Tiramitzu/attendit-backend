@@ -11,18 +11,19 @@ type PaidLeave struct {
 	Reason           string             `json:"reason" bson:"reason"`
 	StartDate        string             `json:"startDate" bson:"startDate"`
 	Days             int                `json:"days" bson:"days"`
-	Accepted         bool               `json:"accepted" bson:"accepted"`
-	AcceptedBy       primitive.ObjectID `json:"acceptedBy" bson:"acceptedBy"`
+	Status           int                `json:"status" bson:"status"`
+	StatusBy         primitive.ObjectID `json:"statusBy" bson:"statusBy"`
+	User             *User              `json:"user" bson:"user"`
 }
 
-func NewPaidLeave(userId primitive.ObjectID, accepted bool, acceptedBy primitive.ObjectID, reason string, startDate string, days int) *PaidLeave {
+func NewPaidLeave(userId primitive.ObjectID, status int, statusBy primitive.ObjectID, reason string, startDate string, days int) *PaidLeave {
 	return &PaidLeave{
-		UserId:     userId,
-		Reason:     reason,
-		StartDate:  startDate,
-		Days:       days,
-		Accepted:   accepted,
-		AcceptedBy: acceptedBy,
+		UserId:    userId,
+		Reason:    reason,
+		StartDate: startDate,
+		Days:      days,
+		Status:    status,
+		StatusBy:  statusBy,
 	}
 }
 

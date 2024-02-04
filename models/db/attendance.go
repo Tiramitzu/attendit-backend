@@ -13,6 +13,7 @@ type Attendance struct {
 	Date             string             `json:"date" bson:"date"`
 	CheckIn          string             `json:"checkIn" bson:"checkIn"`
 	CheckOut         string             `json:"checkOut" bson:"checkOut"`
+	User             *User              `json:"user" bson:"user"`
 }
 
 func NewAttendance(userId primitive.ObjectID, ipAddress string, date string, status string, checkIn string, checkOut string) *Attendance {

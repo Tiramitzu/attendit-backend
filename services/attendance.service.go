@@ -87,14 +87,31 @@ func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Att
 
 func GetAttendances(page int) ([]*db.Attendance, error) {
 	var attendances []*db.Attendance
-	opts := options.Find()
-	opts.SetLimit(25)
-	opts.SetSkip(int64(page-1) * 25)
-	opts.SetSort(bson.M{"createdAt": -1})
-	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{}, opts)
+	var users []*db.User
 
+	// Fetch attendances
+	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"createdAt": -1}))
 	if err != nil {
 		return nil, err
+	}
+
+	// Fetch users
+	err = mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	// Combine attendances and users
+	for _, attendance := range attendances {
+		for _, user := range users {
+			if attendance.UserId == user.ID {
+				attendance.User = user
+				break
+			}
+		}
 	}
 
 	return attendances, nil

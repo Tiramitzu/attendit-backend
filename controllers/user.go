@@ -118,9 +118,15 @@ func GetUser(c *gin.Context) {
 		Success:    false,
 	}
 
-	userId, _ := c.Get("userId")
+	userIdHex := c.Param("userId")
+	userId, err := primitive.ObjectIDFromHex(userIdHex)
+	if err != nil {
+		response.Message = "Invalid User ID"
+		response.SendErrorResponse(c)
+		return
+	}
 
-	user, err := redisServices.GetUserFromCache(userId.(primitive.ObjectID))
+	user, err := redisServices.GetUserFromCache(userId)
 	if err == nil {
 		response.StatusCode = http.StatusOK
 		response.Success = true

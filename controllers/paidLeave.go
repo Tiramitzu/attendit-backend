@@ -35,9 +35,14 @@ func CreatePaidLeave(c *gin.Context) {
 		response.SendErrorResponse(c)
 		return
 	}
-	_, err = services.GetActiveRequest(user.ID)
+	activePaidLeave, err := services.GetActiveRequest(user.ID)
 	if err != nil {
 		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+	if activePaidLeave != nil {
+		response.Message = "Anda masih memiliki permintaan cuti yang belum selesai"
 		response.SendErrorResponse(c)
 		return
 	}

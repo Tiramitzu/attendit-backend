@@ -9,14 +9,11 @@ import (
 )
 
 func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
-	var paidLeave *db.PaidLeave
+	paidLeave := &db.PaidLeave{}
 	err := mgm.Coll(paidLeave).First(bson.M{"userId": userId, "accepted": false}, paidLeave)
 
 	if err != nil {
-		if err.Error() == "mongo: no documents in result" {
-			return nil, nil
-		}
-		return nil, errors.New("Gagal mencari permintaan cuti yang belum selesai")
+		return nil, err
 	}
 
 	return paidLeave, nil

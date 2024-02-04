@@ -96,3 +96,31 @@ func GetActivePaidLeave(c *gin.Context) {
 	response.Data = gin.H{"paidLeave": paidLeave}
 	response.SendResponse(c)
 }
+
+// GetPaidLeaves godoc
+// @Summary      GetPaidLeaves
+// @Description  get all paid leave requests
+// @Tags         paidLeave
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /admin/paidLeaves [get]
+func GetPaidLeaves(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: 400,
+		Success:    false,
+	}
+
+	paidLeaves, err := services.GetPaidLeaves()
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	response.StatusCode = 200
+	response.Success = true
+	response.Data = gin.H{"paidLeaves": paidLeaves}
+	response.SendResponse(c)
+}

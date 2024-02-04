@@ -16,18 +16,18 @@ var passwordRule = []validation.Rule{
 }
 
 type PaidLeaveRequest struct {
-	UserId     string `json:"userId"`
-	Reason     string `json:"reason"`
-	Accepted   bool   `json:"accepted"`
-	AcceptedBy string `json:"acceptedBy"`
+	UserId    string `json:"userId"`
+	Reason    string `json:"reason"`
+	StartDate string `json:"startDate"`
+	Days      int    `json:"days"`
 }
 
 func (a PaidLeaveRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.UserId, Required),
 		validation.Field(&a.Reason, Required),
-		validation.Field(&a.Accepted, Required),
-		validation.Field(&a.AcceptedBy, Required),
+		validation.Field(&a.StartDate, Required),
+		validation.Field(&a.Days, Required, is.Digit.Error("harus berupa angka"), validation.Min(1).Error("harus lebih dari 0 hari")),
 	)
 }
 
@@ -94,7 +94,7 @@ func (a ModifyUserRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Email, is.Email.Error(" tidak valid")),
 		validation.Field(&a.FullName, validation.Length(3, 0).Error("harus lebih dari 3 karakter")),
-		validation.Field(&a.Phone, validation.Length(11, 14).Error("harus terdiri dari 11-14 karakter")),
+		validation.Field(&a.Phone, is.Digit.Error(" tidak valid"), validation.Length(11, 14).Error("harus terdiri dari 11-14 karakter")),
 		validation.Field(&a.Password, passwordRule...),
 	)
 }

@@ -19,8 +19,8 @@ func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
 	return paidLeave, nil
 }
 
-func CreatePaidLeave(userId primitive.ObjectID, reason string) (*db.PaidLeave, error) {
-	paidLeave := db.NewPaidLeave(userId, false, primitive.NilObjectID, reason)
+func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate string, days int) (*db.PaidLeave, error) {
+	paidLeave := db.NewPaidLeave(userId, false, primitive.NilObjectID, reason, startDate, days)
 	err := mgm.Coll(paidLeave).Create(paidLeave)
 
 	if err != nil {

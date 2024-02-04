@@ -42,7 +42,7 @@ func CreatePaidLeave(c *gin.Context) {
 		return
 	}
 
-	paidLeave, err := services.CreatePaidLeave(user.ID, requestBody.Reason)
+	paidLeave, err := services.CreatePaidLeave(user.ID, requestBody.Reason, requestBody.StartDate, requestBody.Days)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

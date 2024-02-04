@@ -66,7 +66,7 @@ func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate string,
 	return paidLeave, nil
 }
 
-func UpdatePaidLeaveStatus(paidLeaveId primitive.ObjectID, status int) (*db.PaidLeave, error) {
+func UpdatePaidLeaveStatus(paidLeaveId primitive.ObjectID, status int, userId primitive.ObjectID) (*db.PaidLeave, error) {
 	paidLeave := &db.PaidLeave{}
 	err := mgm.Coll(paidLeave).First(bson.M{"_id": paidLeaveId}, paidLeave)
 
@@ -75,6 +75,7 @@ func UpdatePaidLeaveStatus(paidLeaveId primitive.ObjectID, status int) (*db.Paid
 	}
 
 	paidLeave.Status = status
+	paidLeave.StatusBy = userId
 	err = mgm.Coll(paidLeave).Update(paidLeave)
 
 	if err != nil {

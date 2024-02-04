@@ -148,6 +148,9 @@ func UpdatePaidLeaveStatus(c *gin.Context) {
 	paidLeaveIdHex := c.Param("id")
 	paidLeaveId, _ := primitive.ObjectIDFromHex(paidLeaveIdHex)
 
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
+
 	status, err := strconv.Atoi(requestBody.Status)
 	if err != nil {
 		response.Message = "Status harus berupa angka"
@@ -155,7 +158,7 @@ func UpdatePaidLeaveStatus(c *gin.Context) {
 		return
 	}
 
-	paidLeave, err := services.UpdatePaidLeaveStatus(paidLeaveId, status)
+	paidLeave, err := services.UpdatePaidLeaveStatus(paidLeaveId, status, userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

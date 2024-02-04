@@ -13,6 +13,9 @@ func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
 	err := mgm.Coll(paidLeave).First(bson.M{"userId": userId, "accepted": false}, paidLeave)
 
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
 		return nil, errors.New("Gagal mencari permintaan cuti yang belum selesai")
 	}
 

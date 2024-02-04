@@ -79,6 +79,10 @@ func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Att
 	attendance := &db.Attendance{}
 	err := mgm.Coll(attendance).First(bson.M{"userId": userId, "date": date}, attendance)
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 

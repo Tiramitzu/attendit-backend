@@ -10,7 +10,7 @@ import (
 func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	users := router.Group("/users/:userId", handlers...)
 	{
-		users.GET("/", controllers.GetCurrentUser)
+		users.GET("", controllers.GetCurrentUser)
 		users.GET(
 			"/attendances",
 			validators.QueryPageValidator(),
@@ -52,6 +52,6 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			validators.PathAttendanceIdValidator(),
 			controllers.AttendanceCheckOut,
 		)
-		users.PATCH("/", controllers.ModifyCurrentUser)
+		users.PATCH("", controllers.ModifyCurrentUser)
 	}
 }

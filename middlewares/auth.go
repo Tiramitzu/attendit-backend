@@ -68,8 +68,7 @@ func IsAdminMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("userIdHex", tokenModel.User.Hex())
-		c.Set("userId", tokenModel.User)
+		c.Set("userId", tokenModel.User.Hex())
 
 		c.Next()
 	}

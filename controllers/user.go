@@ -135,7 +135,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 
-	user, err = services.GetUserById(userId.(primitive.ObjectID))
+	user, err = services.GetUserById(userId)
 
 	if err != nil {
 		response.Message = err.Error()

@@ -10,7 +10,7 @@ import (
 func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	users := router.Group("/users/:userId", handlers...)
 	{
-		users.GET("", controllers.GetCurrentUser)
+		users.GET("", controllers.GetUser)
 		users.GET(
 			"/attendances",
 			controllers.GetUserAttendances,

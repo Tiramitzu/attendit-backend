@@ -35,9 +35,10 @@ func GetUserSchedules(c *gin.Context) {
 		page = 1
 	}
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -132,9 +133,10 @@ func CreateUserSchedule(c *gin.Context) {
 	var requestBody models.ScheduleRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

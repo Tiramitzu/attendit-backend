@@ -40,10 +40,16 @@ func PathUserIdValidator() gin.HandlerFunc {
 				return
 			}
 
-			c.Set("userId", user.ID)
+			c.Set("userId", user.ID.Hex())
 			c.Next()
 		} else {
-			user, err := services.GetUserByToken(c.GetHeader("Authorization")[7:])
+			authorization := c.GetHeader("Authorization")
+			if authorization == "" {
+				models.SendErrorResponse(c, http.StatusUnauthorized, "Unauthorized")
+				return
+			}
+
+			user, err := services.GetUserByToken(authorization[7:])
 			if err != nil {
 				models.SendErrorResponse(c, http.StatusUnauthorized, "Invalid token")
 				return

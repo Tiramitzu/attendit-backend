@@ -11,8 +11,8 @@ import (
 	"strconv"
 )
 
-// GetCurrentUser godoc
-// @Summary      GetCurrentUser
+// GetUser godoc
+// @Summary      GetUser
 // @Description  gets the current user
 // @Tags         user
 // @Accept       json
@@ -20,15 +20,16 @@ import (
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
 // @Router       /users/{userId} [get]
-func GetCurrentUser(c *gin.Context) {
+func GetUser(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,
 		Success:    false,
 	}
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	user, err := redisServices.GetUserFromCache(userId.(primitive.ObjectID))
+	user, err := redisServices.GetUserFromCache(userId)
 	if err == nil {
 		response.StatusCode = http.StatusOK
 		response.Success = true
@@ -37,7 +38,7 @@ func GetCurrentUser(c *gin.Context) {
 		return
 	}
 
-	user, err = services.GetUserById(userId.(primitive.ObjectID))
+	user, err = services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -71,9 +72,10 @@ func ModifyCurrentUser(c *gin.Context) {
 	var requestBody models.ModifyUserRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -101,53 +103,6 @@ func ModifyCurrentUser(c *gin.Context) {
 }
 
 // ADMIN
-
-// GetUser godoc
-// @Summary      GetUser
-// @Description  gets a user
-// @Tags         user
-// @Accept       json
-// @Produce      json
-// @Param        userId path string true "User ID"
-// @Success      200  {object}  models.Response
-// @Failure      400  {object}  models.Response
-// @Router       /users/{userId} [get]
-func GetUser(c *gin.Context) {
-	response := &models.Response{
-		StatusCode: http.StatusBadRequest,
-		Success:    false,
-	}
-
-	userIdHex := c.Param("userId")
-	userId, err := primitive.ObjectIDFromHex(userIdHex)
-	if err != nil {
-		response.Message = "Invalid User ID"
-		response.SendErrorResponse(c)
-		return
-	}
-
-	user, err := redisServices.GetUserFromCache(userId)
-	if err == nil {
-		response.StatusCode = http.StatusOK
-		response.Success = true
-		response.Data = gin.H{"user": user, "cache": true}
-		response.SendResponse(c)
-		return
-	}
-
-	user, err = services.GetUserById(userId)
-
-	if err != nil {
-		response.Message = err.Error()
-		response.SendErrorResponse(c)
-		return
-	}
-
-	response.StatusCode = http.StatusOK
-	response.Success = true
-	response.Data = gin.H{"user": user}
-	response.SendResponse(c)
-}
 
 // GetUsers godoc
 // @Summary      GetUsers
@@ -265,12 +220,13 @@ func UpdateUser(c *gin.Context) {
 		Success:    false,
 	}
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
 	var requestBody models.ModifyUserRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

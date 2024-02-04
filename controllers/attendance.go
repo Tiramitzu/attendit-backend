@@ -62,13 +62,14 @@ func AttendanceCheckIn(c *gin.Context) {
 		return
 	}
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
 	loc := time.FixedZone("UTC", 7*60*60)
 	currentDate := time.Now().In(loc).Format("02-01-2006")
 	currentTime := time.Now().In(loc).Format("15:04:05")
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -169,7 +170,8 @@ func GetUserAttendances(c *gin.Context) {
 	}
 
 	page, _ := strconv.Atoi(c.Query("page"))
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 	if page == 0 {
 		page = 1
 	}
@@ -178,7 +180,7 @@ func GetUserAttendances(c *gin.Context) {
 	toDate := c.Query("to")
 
 	if fromDate != "" && toDate != "" {
-		attendances, err := services.GetUserAttendancesByDate(userId.(primitive.ObjectID), fromDate, toDate, page)
+		attendances, err := services.GetUserAttendancesByDate(userId, fromDate, toDate, page)
 		if err != nil {
 			response.Message = err.Error()
 			response.SendErrorResponse(c)
@@ -192,7 +194,7 @@ func GetUserAttendances(c *gin.Context) {
 		return
 	}
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

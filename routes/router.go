@@ -49,8 +49,8 @@ func New() *gin.Engine {
 		PingRoute(v1)
 		AuthRoute(v1)
 		UserRoute(v1,
-			validators.PathUserIdValidator(),
 			middlewares.JWTMiddleware(),
+			validators.PathUserIdValidator(),
 		)
 		CompanyRoute(v1, middlewares.JWTMiddleware())
 		AdminRoute(

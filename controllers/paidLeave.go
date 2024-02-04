@@ -26,9 +26,10 @@ func CreatePaidLeave(c *gin.Context) {
 		Success:    false,
 	}
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -69,9 +70,10 @@ func GetActivePaidLeave(c *gin.Context) {
 		Success:    false,
 	}
 
-	userId, _ := c.Get("userId")
+	userIdHex, _ := c.Get("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	user, err := services.GetUserById(userId.(primitive.ObjectID))
+	user, err := services.GetUserById(userId)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

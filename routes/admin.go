@@ -39,5 +39,10 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			"/company",
 			controllers.ModifyCompany,
 		)
+		admin.PATCH(
+			"/paidLeaves/:id",
+			validators.PathIdValidator(),
+			controllers.UpdatePaidLeaveStatus,
+		)
 	}
 }

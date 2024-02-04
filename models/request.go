@@ -31,6 +31,16 @@ func (a PaidLeaveRequest) Validate() error {
 	)
 }
 
+type PaidLeaveStatusRequest struct {
+	Status string `json:"status"`
+}
+
+func (a PaidLeaveStatusRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.Status, Required, is.Digit.Error("harus berupa angka")),
+	)
+}
+
 type ScheduleRequest struct {
 	Title     string `json:"title"`
 	StartTime string `json:"startTime"`

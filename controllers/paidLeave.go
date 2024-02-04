@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strconv"
 )
 
 // CreatePaidLeave godoc
@@ -122,5 +123,47 @@ func GetPaidLeaves(c *gin.Context) {
 	response.StatusCode = 200
 	response.Success = true
 	response.Data = gin.H{"paidLeaves": paidLeaves}
+	response.SendResponse(c)
+}
+
+// UpdatePaidLeaveStatus godoc
+// @Summary      UpdatePaidLeaveStatus
+// @Description  update paid leave request status
+// @Tags         paidLeave
+// @Accept       json
+// @Produce      json
+// @Param        paidLeaveId path string true "PaidLeave ID"
+// @Param        status body int true "Status"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /admin/paidLeaves/{paidLeaveId} [put]
+func UpdatePaidLeaveStatus(c *gin.Context) {
+	var requestBody models.PaidLeaveStatusRequest
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+	response := &models.Response{
+		StatusCode: 400,
+		Success:    false,
+	}
+
+	paidLeaveIdHex := c.Param("paidLeaveId")
+	paidLeaveId, _ := primitive.ObjectIDFromHex(paidLeaveIdHex)
+
+	status, err := strconv.Atoi(requestBody.Status)
+	if err != nil {
+		response.Message = "Status harus berupa angka"
+		response.SendErrorResponse(c)
+		return
+	}
+
+	paidLeave, err := services.UpdatePaidLeaveStatus(paidLeaveId, status)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	response.StatusCode = 200
+	response.Success = true
+	response.Data = gin.H{"paidLeave": paidLeave}
 	response.SendResponse(c)
 }

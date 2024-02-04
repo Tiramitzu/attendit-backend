@@ -89,40 +89,18 @@ func CheckUserMail(email string) error {
 	return nil
 }
 
-func GetUserAttendances(userId primitive.ObjectID, page int) ([]db.Attendance, error) {
-	var attendances []db.Attendance
+func GetUsers(page int) ([]*db.User, error) {
+	var users []*db.User
 	opts := options.Find()
 	opts.SetLimit(25)
-	opts.SetSkip(int64(page-1) * 25)
-	opts.SetSort(bson.M{"createdAt": -1})
-	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{"userId": userId}, opts)
+	opts.SetSkip(int64((page - 1) * 25))
+	err := mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{}, opts)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return attendances, nil
-}
-
-func GetUserAttendancesByDate(userId primitive.ObjectID, fromDate string, toDate string, page int) ([]db.Attendance, error) {
-	var attendances []db.Attendance
-	opts := options.Find()
-	opts.SetLimit(25)
-	opts.SetSkip(int64(page-1) * 25)
-	opts.SetSort(bson.M{"updatedAt": -1})
-	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{
-		"userId": userId,
-		"date": bson.M{
-			"$gte": fromDate,
-			"$lte": toDate,
-		},
-	}, opts)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return attendances, nil
+	return users, nil
 }
 
 func GetClientIP(r *http.Request) (string, error) {

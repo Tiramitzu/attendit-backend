@@ -39,3 +39,33 @@ func GetUserFromCache(userId primitive.ObjectID) (*db.User, error) {
 	err := services.GetRedisCache().Get(context.TODO(), userCacheKey, user)
 	return user, err
 }
+
+func getUsersCacheKey(page int) string {
+	return "req:cache:users:" + string(rune(page))
+}
+
+func CacheUsers(page int, users []*db.User) {
+	if !services.Config.UseRedis {
+		return
+	}
+
+	usersCacheKey := getUsersCacheKey(page)
+
+	_ = services.GetRedisCache().Set(&cache.Item{
+		Ctx:   context.TODO(),
+		Key:   usersCacheKey,
+		Value: users,
+		TTL:   time.Second * 30,
+	})
+}
+
+func GetUsersFromCache(page int) ([]*db.User, error) {
+	if !services.Config.UseRedis {
+		return nil, errors.New("no redis client, set USE_REDIS in .env")
+	}
+
+	var users []*db.User
+	usersCacheKey := getUsersCacheKey(page)
+	err := services.GetRedisCache().Get(context.TODO(), usersCacheKey, &users)
+	return users, err
+}

@@ -40,16 +40,16 @@ func GetUserAttendancesFromCache(userId primitive.ObjectID, page int) ([]models.
 	return attendances, err
 }
 
-func getCompanyAttendancesCacheKey(page int) string {
+func getAttendancesCacheKey(page int) string {
 	return "req:cache:company:attendances:" + string(rune(page))
 }
 
-func CacheCompanyAttendances(page int, attendances []*models.Attendance) {
+func CacheAttendances(page int, attendances []*models.Attendance) {
 	if !services.Config.UseRedis {
 		return
 	}
 
-	companyAttendancesCacheKey := getCompanyAttendancesCacheKey(page)
+	companyAttendancesCacheKey := getAttendancesCacheKey(page)
 
 	_ = services.GetRedisCache().Set(&cache.Item{
 		Ctx:   context.TODO(),
@@ -59,13 +59,13 @@ func CacheCompanyAttendances(page int, attendances []*models.Attendance) {
 	})
 }
 
-func GetCompanyAttendancesFromCache(page int) ([]*models.Attendance, error) {
+func GetAttendancesFromCache(page int) ([]*models.Attendance, error) {
 	if !services.Config.UseRedis {
 		return nil, errors.New("no redis client, set USE_REDIS in .env")
 	}
 
 	var attendances []*models.Attendance
-	companyAttendancesCacheKey := getCompanyAttendancesCacheKey(page)
+	companyAttendancesCacheKey := getAttendancesCacheKey(page)
 	err := services.GetRedisCache().Get(context.TODO(), companyAttendancesCacheKey, &attendances)
 	return attendances, err
 }

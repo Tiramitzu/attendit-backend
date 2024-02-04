@@ -39,6 +39,42 @@ func AttendanceCheckOut(attendance *db.Attendance) (*db.Attendance, error) {
 	return attendance, nil
 }
 
+func GetUserAttendances(userId primitive.ObjectID, page int) ([]db.Attendance, error) {
+	var attendances []db.Attendance
+	opts := options.Find()
+	opts.SetLimit(25)
+	opts.SetSkip(int64(page-1) * 25)
+	opts.SetSort(bson.M{"createdAt": -1})
+	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{"userId": userId}, opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return attendances, nil
+}
+
+func GetUserAttendancesByDate(userId primitive.ObjectID, fromDate string, toDate string, page int) ([]db.Attendance, error) {
+	var attendances []db.Attendance
+	opts := options.Find()
+	opts.SetLimit(25)
+	opts.SetSkip(int64(page-1) * 25)
+	opts.SetSort(bson.M{"updatedAt": -1})
+	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{
+		"userId": userId,
+		"date": bson.M{
+			"$gte": fromDate,
+			"$lte": toDate,
+		},
+	}, opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return attendances, nil
+}
+
 func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Attendance, error) {
 	attendance := &db.Attendance{}
 	err := mgm.Coll(attendance).First(bson.M{"userId": userId, "date": date}, attendance)
@@ -49,12 +85,33 @@ func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Att
 	return attendance, nil
 }
 
-func GetAttendancesByCompany(page int) ([]*db.Attendance, error) {
+func GetAttendances(page int) ([]*db.Attendance, error) {
 	var attendances []*db.Attendance
 	opts := options.Find()
 	opts.SetLimit(25)
-	opts.SetSkip(int64((page - 1) * 25))
+	opts.SetSkip(int64(page-1) * 25)
+	opts.SetSort(bson.M{"createdAt": -1})
 	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{}, opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return attendances, nil
+}
+
+func GetAttendancesByDate(fromDate string, toDate string, page int) ([]db.Attendance, error) {
+	var attendances []db.Attendance
+	opts := options.Find()
+	opts.SetLimit(25)
+	opts.SetSkip(int64(page-1) * 25)
+	opts.SetSort(bson.M{"createdAt": -1})
+	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{
+		"date": bson.M{
+			"$gte": fromDate,
+			"$lte": toDate,
+		},
+	}, opts)
 
 	if err != nil {
 		return nil, err

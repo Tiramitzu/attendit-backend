@@ -198,7 +198,7 @@ func GetUsers(c *gin.Context) {
 // @Param        req  body      models.CreateUser true "Register Request"
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
-// @Router       /auth/register [put]
+// @Router       /admin/users [put]
 func CreateUser(c *gin.Context) {
 	var requestBody models.CreateUser
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)

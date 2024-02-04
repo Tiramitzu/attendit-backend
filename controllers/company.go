@@ -54,7 +54,7 @@ func GetCompany(c *gin.Context) {
 // @Param        req  body  models.Company  true  "Request"
 // @Success      200  {object}  models.Company
 // @Failure      400  {object}  models.Company
-// @Router       /company [patch]
+// @Router       /admin/company [patch]
 func ModifyCompany(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: http.StatusBadRequest,

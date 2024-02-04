@@ -145,7 +145,7 @@ func UpdatePaidLeaveStatus(c *gin.Context) {
 		Success:    false,
 	}
 
-	paidLeaveIdHex := c.Param("paidLeaveId")
+	paidLeaveIdHex := c.Param("id")
 	paidLeaveId, _ := primitive.ObjectIDFromHex(paidLeaveIdHex)
 
 	status, err := strconv.Atoi(requestBody.Status)

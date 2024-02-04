@@ -67,8 +67,8 @@ func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate string,
 }
 
 func UpdatePaidLeaveStatus(paidLeaveId primitive.ObjectID, status int) (*db.PaidLeave, error) {
-	var paidLeave *db.PaidLeave
-	err := mgm.Coll(&db.PaidLeave{}).First(bson.M{"_id": paidLeaveId}, paidLeave)
+	paidLeave := &db.PaidLeave{}
+	err := mgm.Coll(paidLeave).First(bson.M{"_id": paidLeaveId}, paidLeave)
 
 	if err != nil {
 		return nil, errors.New("Gagal mendapatkan data cuti")

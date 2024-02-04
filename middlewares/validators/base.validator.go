@@ -1,11 +1,10 @@
 package validators
 
 import (
+	"attendit/backend/models"
 	"attendit/backend/services"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
-
-	"attendit/backend/models"
 
 	"github.com/gin-gonic/gin"
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -85,19 +84,6 @@ func PathScheduleIdValidator() gin.HandlerFunc {
 		if err != nil {
 			models.SendErrorResponse(c, http.StatusBadRequest, "Invalid scheduleId: "+id)
 			return
-		}
-
-		c.Next()
-	}
-}
-
-func QueryPageValidator() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		page := c.Query("page")
-		err := validation.Validate(page, is.Digit)
-		if err != nil {
-			page = "1"
 		}
 
 		c.Next()

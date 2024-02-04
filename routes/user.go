@@ -13,16 +13,10 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 		users.GET("", controllers.GetCurrentUser)
 		users.GET(
 			"/attendances",
-			validators.QueryPageValidator(),
 			controllers.GetUserAttendances,
 		)
 		users.GET(
 			"/schedules",
-			controllers.GetUserSchedules,
-		)
-		users.GET(
-			"/schedules?page=:page",
-			validators.QueryPageValidator(),
 			controllers.GetUserSchedules,
 		)
 		users.GET(

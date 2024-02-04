@@ -11,7 +11,6 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	{
 		admin.PUT("/users", controllers.CreateUser)
 		admin.GET("/users",
-			validators.QueryPageValidator(),
 			controllers.GetUsers)
 		admin.GET(
 			"/users/:id",
@@ -20,12 +19,10 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 		)
 		admin.GET(
 			"/attendances",
-			validators.QueryPageValidator(),
 			controllers.GetAttendances,
 		)
 		admin.GET(
 			"/users/:id/attendances",
-			validators.QueryPageValidator(),
 			validators.PathIdValidator(),
 			controllers.GetUserAttendances,
 		)

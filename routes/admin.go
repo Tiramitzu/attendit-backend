@@ -32,8 +32,8 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetUserAttendances,
 		)
 		admin.PATCH(
-			"/users/:id",
-			validators.PathIdValidator(),
+			"/users/:userId",
+			validators.PathUserIdValidator(),
 			controllers.UpdateUser,
 		)
 		admin.PATCH(

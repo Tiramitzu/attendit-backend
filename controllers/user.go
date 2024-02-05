@@ -250,3 +250,27 @@ func UpdateUser(c *gin.Context) {
 	response.Data = gin.H{"user": updatedUser}
 	response.SendResponse(c)
 }
+
+func DeleteUser(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: http.StatusBadRequest,
+		Success:    false,
+	}
+
+	userIdHex := c.Param("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex)
+
+	newUsers, err := services.DeleteUser(userId)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	redisServices.CacheUsers(1, newUsers)
+
+	response.StatusCode = http.StatusOK
+	response.Success = true
+	response.Data = gin.H{"users": newUsers}
+	response.SendResponse(c)
+}

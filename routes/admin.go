@@ -14,8 +14,8 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetUsers,
 		)
 		admin.GET(
-			"/users/:id",
-			validators.PathIdValidator(),
+			"/users/:userId",
+			validators.PathUserIdValidator(),
 			controllers.GetUser,
 		)
 		admin.GET(
@@ -27,8 +27,8 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetPaidLeaves,
 		)
 		admin.GET(
-			"/users/:id/attendances",
-			validators.PathIdValidator(),
+			"/users/:userId/attendances",
+			validators.PathUserIdValidator(),
 			controllers.GetUserAttendances,
 		)
 		admin.PATCH(
@@ -44,6 +44,11 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			"/paidLeaves/:id",
 			validators.PathIdValidator(),
 			controllers.UpdatePaidLeaveStatus,
+		)
+		admin.DELETE(
+			"/users/:userId",
+			validators.PathUserIdValidator(),
+			controllers.DeleteUser,
 		)
 	}
 }

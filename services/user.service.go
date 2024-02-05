@@ -89,12 +89,12 @@ func CheckUserMail(email string) error {
 	return nil
 }
 
-func GetUsers(page int) ([]*db.UserWithPassword, error) {
-	var users []*db.UserWithPassword
+func GetUsers(page int) ([]*db.User, error) {
+	var users []*db.User
 	opts := options.Find()
 	opts.SetLimit(25)
 	opts.SetSkip(int64((page - 1) * 25))
-	err := mgm.Coll(&db.UserWithPassword{}).SimpleFind(&users, bson.M{}, opts)
+	err := mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{}, opts)
 
 	if err != nil {
 		return nil, err

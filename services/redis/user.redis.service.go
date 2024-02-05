@@ -45,7 +45,7 @@ func getUsersCacheKey(page int) string {
 	return "req:cache:users:" + strconv.Itoa(page)
 }
 
-func CacheUsers(page int, users []*db.UserWithPassword) {
+func CacheUsers(page int, users []*db.User) {
 	if !services.Config.UseRedis {
 		return
 	}
@@ -60,12 +60,12 @@ func CacheUsers(page int, users []*db.UserWithPassword) {
 	})
 }
 
-func GetUsersFromCache(page int) ([]*db.UserWithPassword, error) {
+func GetUsersFromCache(page int) ([]*db.User, error) {
 	if !services.Config.UseRedis {
 		return nil, errors.New("no redis client, set USE_REDIS in .env")
 	}
 
-	var users []*db.UserWithPassword
+	var users []*db.User
 	usersCacheKey := getUsersCacheKey(page)
 	err := services.GetRedisCache().Get(context.TODO(), usersCacheKey, &users)
 	return users, err

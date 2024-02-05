@@ -219,8 +219,8 @@ func UpdateUser(c *gin.Context) {
 		Success:    false,
 	}
 
-	userIdHex, _ := c.Get("userId")
-	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
+	userIdHex := c.Param("userId")
+	userId, _ := primitive.ObjectIDFromHex(userIdHex)
 
 	var requestBody models.ModifyUserRequest
 	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)

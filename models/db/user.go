@@ -14,6 +14,15 @@ type User struct {
 	AccessLevel      int    `json:"accessLevel" bson:"accessLevel"`
 }
 
+type UserWithPassword struct {
+	mgm.DefaultModel `bson:",inline"`
+	Email            string `json:"email" bson:"email"`
+	Password         string `json:"password" bson:"password"`
+	FullName         string `json:"fullName" bson:"fullName"`
+	Phone            string `json:"phone" bson:"phone"`
+	AccessLevel      int    `json:"accessLevel" bson:"accessLevel"`
+}
+
 type UserClaims struct {
 	jwt.RegisteredClaims
 	Email string `json:"email"`

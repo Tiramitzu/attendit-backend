@@ -7,11 +7,12 @@ import (
 	"errors"
 	"github.com/go-redis/cache/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strconv"
 	"time"
 )
 
 func getUserAttendanceByCompanyCacheKey(userId primitive.ObjectID, page int) string {
-	return "req:cache:user:attendance:" + userId.Hex() + ":" + string(rune(page))
+	return "req:cache:user:attendance:" + userId.Hex() + ":" + strconv.Itoa(page)
 }
 
 func CacheUserAttendancesByCompany(userId primitive.ObjectID, attendance []models.Attendance, page int) {
@@ -41,7 +42,7 @@ func GetUserAttendancesFromCache(userId primitive.ObjectID, page int) ([]models.
 }
 
 func getAttendancesCacheKey(page int) string {
-	return "req:cache:company:attendances:" + string(rune(page))
+	return "req:cache:company:attendances:" + strconv.Itoa(page)
 }
 
 func CacheAttendances(page int, attendances []*models.Attendance) {

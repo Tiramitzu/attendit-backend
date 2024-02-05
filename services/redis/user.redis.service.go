@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/go-redis/cache/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strconv"
 	"time"
 )
 
@@ -41,7 +42,7 @@ func GetUserFromCache(userId primitive.ObjectID) (*db.User, error) {
 }
 
 func getUsersCacheKey(page int) string {
-	return "req:cache:users:" + string(rune(page))
+	return "req:cache:users:" + strconv.Itoa(page)
 }
 
 func CacheUsers(page int, users []*db.UserWithPassword) {

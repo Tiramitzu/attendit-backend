@@ -120,8 +120,8 @@ func GetUsers(c *gin.Context) {
 		Success:    false,
 	}
 
-	page, _ := strconv.Atoi(c.Param("page"))
-	if page == 0 {
+	page, err := strconv.Atoi(c.Query("page"))
+	if page < 1 {
 		page = 1
 	}
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-co-op/gocron/v2"
 	"log"
 	"net/http"
 	"os"
@@ -32,10 +33,30 @@ import (
 // @in header
 // @name Bearer-Token
 func main() {
+	s, err := gocron.NewScheduler()
+	if err != nil {
+		log.Println(err)
+	}
+
 	services.LoadConfig()
 	services.InitMongoDB()
 	services.CheckRedisConnection()
 
+	_, err = s.NewJob(
+		gocron.DailyJob(
+			1,
+			gocron.NewAtTimes(
+				gocron.NewAtTime(23, 59, 59),
+			),
+		),
+		gocron.NewTask(
+			services.CheckOutAllAttendances(),
+		),
+	)
+
+	if err != nil {
+		log.Println(err)
+	}
 	routes.InitGin()
 	router := routes.New()
 
@@ -53,6 +74,8 @@ func main() {
 		}
 	}()
 
+	s.Start()
+
 	// Wait for interrupt signal to gracefully shut down the server with
 	// a timeout of 15 seconds.
 	quit := make(chan os.Signal)
@@ -62,6 +85,9 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+	if err := s.Shutdown(); err != nil {
+		log.Println("Scheduler Shutdown:", err)
+	}
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}

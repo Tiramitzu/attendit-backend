@@ -39,6 +39,21 @@ func AttendanceCheckOut(attendance *db.Attendance) (*db.Attendance, error) {
 	return attendance, nil
 }
 
+func CheckOutAllAttendances() error {
+	company := &db.Company{}
+	err := mgm.Coll(company).First(bson.M{}, company)
+	if err != nil {
+		return err
+	}
+	_, err = mgm.Coll(&db.Attendance{}).UpdateMany(mgm.Ctx(), bson.M{"checkOut": nil}, bson.M{"$set": bson.M{"checkOut": company.CheckOutTime}})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetUserAttendances(userId primitive.ObjectID, page int) ([]db.Attendance, error) {
 	var attendances []db.Attendance
 	opts := options.Find()

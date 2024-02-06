@@ -107,7 +107,7 @@ func GetActivePaidLeave(c *gin.Context) {
 // @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
 // @Router       /admin/paidLeaves [get]
-func GetPaidLeaves(c *gin.Context) {
+func GetPaidLeavesAdmin(c *gin.Context) {
 	response := &models.Response{
 		StatusCode: 400,
 		Success:    false,

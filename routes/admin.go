@@ -24,7 +24,7 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 		)
 		admin.GET(
 			"/paidLeaves",
-			controllers.GetPaidLeaves,
+			controllers.GetPaidLeavesAdmin,
 		)
 		admin.GET(
 			"/users/:id/attendances",

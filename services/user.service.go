@@ -38,6 +38,35 @@ func UpdateUser(user *db.User) (*db.User, error) {
 	return user, nil
 }
 
+func DeleteUser(userId primitive.ObjectID) ([]*db.User, error) {
+	user := &db.User{}
+	token := &db.Token{}
+	err := mgm.Coll(user).First(bson.M{"_id": userId}, user)
+	if err != nil {
+		return nil, errors.New("304: Not Modified")
+	}
+	err = mgm.Coll(token).First(bson.M{"user": userId}, token)
+	if err != nil {
+		return nil, errors.New("304: Not Modified")
+	}
+
+	err = mgm.Coll(user).Delete(user);
+	if err != nil {
+		return nil, errors.New("304: Not Modified")
+	}
+	err = mgm.Coll(token).Delete(token);
+	if err != nil {
+		return nil, errors.New("304: Not Modified")
+	}
+
+	users, err := GetUsers(1)
+	if err != nil {
+		return nil, errors.New("Failed to get users")
+	}
+
+	return users, nil;
+}
+
 // GetUserById find user by id
 func GetUserById(userId primitive.ObjectID) (*db.User, error) {
 	user := &db.User{}

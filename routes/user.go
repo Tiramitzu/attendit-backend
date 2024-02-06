@@ -28,6 +28,10 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			"/paidLeave",
 			controllers.GetActivePaidLeave,
 		)
+		users.GET(
+			"/paidLeaves",
+			controllers.GetPaidLeaves,
+		)
 		users.POST(
 			"/paidLeave",
 			controllers.CreatePaidLeave,

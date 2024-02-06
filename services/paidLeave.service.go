@@ -55,6 +55,20 @@ func GetPaidLeaves() ([]*db.PaidLeave, error) {
 	return paidLeaves, nil
 }
 
+func GetPaidLeavesByUserId(userId primitive.ObjectID) ([]*db.PaidLeave, error) {
+	var paidLeaves []*db.PaidLeave
+	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{"userId": userId})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+
+		return nil, errors.New("Gagal mendapatkan data cuti")
+	}
+
+	return paidLeaves, nil
+}
+
 func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate string, days int) (*db.PaidLeave, error) {
 	paidLeave := db.NewPaidLeave(userId, 0, primitive.NilObjectID, reason, startDate, days)
 	err := mgm.Coll(paidLeave).Create(paidLeave)

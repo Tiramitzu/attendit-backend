@@ -143,8 +143,7 @@ func CreateUserSchedule(c *gin.Context) {
 		return
 	}
 
-	loc := time.FixedZone("UTC", 7*60*60)
-	currentDate := time.Now().In(loc).Format("02-01-2006")
+	currentDate := time.Now().Format("02-01-2006")
 
 	schedule := db.NewSchedule(user.ID, requestBody.Title, requestBody.StartTime, requestBody.EndTime, currentDate)
 

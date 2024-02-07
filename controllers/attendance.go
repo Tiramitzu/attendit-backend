@@ -65,9 +65,8 @@ func AttendanceCheckIn(c *gin.Context) {
 	userIdHex, _ := c.Get("userId")
 	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	loc := time.FixedZone("UTC", 7*60*60)
-	currentDate := time.Now().In(loc).Format("02-01-2006")
-	currentTime := time.Now().In(loc).Format("15:04:05")
+	currentDate := time.Now().Format("02-01-2006")
+	currentTime := time.Now().Format("15:04:05")
 
 	user, err := services.GetUserById(userId)
 	if err != nil {
@@ -113,8 +112,7 @@ func AttendanceCheckOut(c *gin.Context) {
 		Success:    false,
 	}
 
-	loc := time.FixedZone("UTC", 7*60*60)
-	currentTime := time.Now().In(loc).Format("15:04:05")
+	currentTime := time.Now().Format("15:04:05")
 
 	attendanceIdHex := c.Param("attendanceId")
 	attendanceId, err := primitive.ObjectIDFromHex(attendanceIdHex)

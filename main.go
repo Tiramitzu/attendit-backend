@@ -33,6 +33,13 @@ import (
 // @in header
 // @name Bearer-Token
 func main() {
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Println(err)
+	}
+
+	time.Local = location
+
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		log.Println(err)

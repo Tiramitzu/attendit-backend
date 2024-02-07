@@ -1,15 +1,13 @@
 package routes
 
 import (
-	"attendit/backend/middlewares/validators"
-	"fmt"
-	"net/http"
-	"time"
-
 	"attendit/backend/docs"
 	"attendit/backend/middlewares"
+	"attendit/backend/middlewares/validators"
 	"attendit/backend/models"
 	"attendit/backend/services"
+	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -24,7 +22,6 @@ func New() *gin.Engine {
 		gin.LoggerConfig{
 			Formatter: func(param gin.LogFormatterParams) string {
 				param.ClientIP = getUserIP(param.Request)
-				param.TimeStamp = time.Now().In(time.FixedZone("UTC", 7*60*60))
 				return fmt.Sprintf(
 					"[GIN] %v |%s %3d %s| %13v | %15s |%s %-7s %s %#v\n",
 					param.TimeStamp.Format("2006/01/02 - 15:04:05"),

@@ -124,11 +124,18 @@ func GetUsers(c *gin.Context) {
 		page = 1
 	}
 
+	totalUsers, err := services.GetTotalUsers()
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
 	users, err := redisServices.GetUsersFromCache(page)
 	if err == nil {
 		response.StatusCode = http.StatusOK
 		response.Success = true
-		response.Data = gin.H{"users": users, "cache": true}
+		response.Data = gin.H{"users": users, "total": totalUsers, "cache": true}
 		response.SendResponse(c)
 		return
 	}
@@ -145,7 +152,7 @@ func GetUsers(c *gin.Context) {
 
 	response.StatusCode = http.StatusOK
 	response.Success = true
-	response.Data = gin.H{"users": users}
+	response.Data = gin.H{"users": users, "total": totalUsers}
 	response.SendResponse(c)
 }
 

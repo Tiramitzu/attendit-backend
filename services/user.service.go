@@ -50,11 +50,11 @@ func DeleteUser(userId primitive.ObjectID) ([]*db.User, error) {
 		return nil, errors.New("304: Not Modified")
 	}
 
-	err = mgm.Coll(user).Delete(user);
+	err = mgm.Coll(user).Delete(user)
 	if err != nil {
 		return nil, errors.New("304: Not Modified")
 	}
-	err = mgm.Coll(token).Delete(token);
+	err = mgm.Coll(token).Delete(token)
 	if err != nil {
 		return nil, errors.New("304: Not Modified")
 	}
@@ -64,7 +64,7 @@ func DeleteUser(userId primitive.ObjectID) ([]*db.User, error) {
 		return nil, errors.New("Failed to get users")
 	}
 
-	return users, nil;
+	return users, nil
 }
 
 // GetUserById find user by id
@@ -116,6 +116,15 @@ func CheckUserMail(email string) error {
 	}
 
 	return nil
+}
+
+func GetTotalUsers() (int64, error) {
+	total, err := mgm.Coll(&db.User{}).CountDocuments(mgm.Ctx(), bson.M{})
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 func GetUsers(page int) ([]*db.User, error) {

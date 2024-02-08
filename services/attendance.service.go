@@ -46,7 +46,7 @@ func CheckOutAllAttendances() error {
 	if err != nil {
 		return err
 	}
-	_, err = mgm.Coll(&db.Attendance{}).UpdateMany(mgm.Ctx(), bson.M{"checkOut": nil}, bson.M{"$set": bson.M{"checkOut": company.CheckOutTime}})
+	_, err = mgm.Coll(&db.Attendance{}).UpdateMany(mgm.Ctx(), bson.M{"checkOut": ""}, bson.M{"$set": bson.M{"checkOut": company.CheckOutTime}})
 
 	if err != nil {
 		return err

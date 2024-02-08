@@ -6,6 +6,7 @@ import (
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
@@ -23,11 +24,21 @@ func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
 	return paidLeave, nil
 }
 
-func GetPaidLeaves() ([]*db.PaidLeave, error) {
+func GetTotalPaidLeaves() (int64, error) {
+	total, err := mgm.Coll(&db.PaidLeave{}).EstimatedDocumentCount(mgm.Ctx())
+
+	if err != nil {
+		return 0, errors.New("Gagal mendapatkan total cuti")
+	}
+
+	return total, nil
+}
+
+func GetPaidLeaves(page int) ([]*db.PaidLeave, error) {
 	var paidLeaves []*db.PaidLeave
 	var users []*db.User
 
-	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{})
+	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"createdAt": -1}))
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, nil
@@ -55,9 +66,9 @@ func GetPaidLeaves() ([]*db.PaidLeave, error) {
 	return paidLeaves, nil
 }
 
-func GetPaidLeavesByUserId(userId primitive.ObjectID) ([]*db.PaidLeave, error) {
+func GetPaidLeavesByUserId(userId primitive.ObjectID, page int) ([]*db.PaidLeave, error) {
 	var paidLeaves []*db.PaidLeave
-	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{"userId": userId})
+	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{"userId": userId}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"createdAt": -1}))
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, nil

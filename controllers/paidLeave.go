@@ -193,7 +193,7 @@ func GetPaidLeavesAdmin(c *gin.Context) {
 
 	response.StatusCode = 200
 	response.Success = true
-	response.Data = gin.H{"paidLeaves": paidLeaves}
+	response.Data = gin.H{"paidLeaves": paidLeaves, "total": totalPaidLeaves}
 	response.SendResponse(c)
 }
 

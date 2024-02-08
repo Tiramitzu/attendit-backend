@@ -51,7 +51,7 @@ func main() {
 	services.InitMongoDB()
 	services.CheckRedisConnection()
 
-	_, err = s.NewJob(
+	j, err := s.NewJob(
 		gocron.DailyJob(
 			1,
 			gocron.NewAtTimes(
@@ -86,6 +86,13 @@ func main() {
 	}()
 
 	s.Start()
+
+	nextTime, err := j.NextRun()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Printf("Next Cron Job run time: %v\n", nextTime)
 
 	// Wait for interrupt signal to gracefully shut down the server with
 	// a timeout of 15 seconds.

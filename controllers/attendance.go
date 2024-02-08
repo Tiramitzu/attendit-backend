@@ -271,22 +271,8 @@ func GetAttendances(c *gin.Context) {
 
 		response.StatusCode = http.StatusOK
 		response.Success = true
-		response.Data = gin.H{"attendances": attendances}
-		response.Data = gin.H{"total": totalAttendances}
+		response.Data = gin.H{"attendances": attendances, "total": totalAttendances}
 		response.SendResponse(c)
-		return
-	}
-
-	attendances, err := redisServices.GetAttendancesFromCache(page)
-	if err == nil {
-		models.SendResponseData(c, gin.H{"attendances": attendances, "cache": true})
-		return
-	}
-
-	attendances, err = services.GetAttendances(page)
-	if err != nil {
-		response.Message = err.Error()
-		response.SendErrorResponse(c)
 		return
 	}
 
@@ -297,11 +283,23 @@ func GetAttendances(c *gin.Context) {
 		return
 	}
 
+	attendances, err := redisServices.GetAttendancesFromCache(page)
+	if err == nil {
+		models.SendResponseData(c, gin.H{"attendances": attendances, "total": totalAttendances, "cache": true})
+		return
+	}
+
+	attendances, err = services.GetAttendances(page)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
 	redisServices.CacheAttendances(page, attendances)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true
-	response.Data = gin.H{"attendances": attendances}
-	response.Data = gin.H{"total": totalAttendances}
+	response.Data = gin.H{"attendances": attendances, "total": totalAttendances}
 	response.SendResponse(c)
 }

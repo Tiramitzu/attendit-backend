@@ -262,9 +262,17 @@ func GetAttendances(c *gin.Context) {
 			return
 		}
 
+		totalAttendances, err := services.GetTotalAttendancesByDate(fromDate, toDate)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+			return
+		}
+
 		response.StatusCode = http.StatusOK
 		response.Success = true
 		response.Data = gin.H{"attendances": attendances}
+		response.Data = gin.H{"total": totalAttendances}
 		response.SendResponse(c)
 		return
 	}
@@ -282,10 +290,18 @@ func GetAttendances(c *gin.Context) {
 		return
 	}
 
+	totalAttendances, err := services.GetTotalAttendances()
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
 	redisServices.CacheAttendances(page, attendances)
 
 	response.StatusCode = http.StatusOK
 	response.Success = true
 	response.Data = gin.H{"attendances": attendances}
+	response.Data = gin.H{"total": totalAttendances}
 	response.SendResponse(c)
 }

@@ -107,6 +107,15 @@ func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Att
 	return attendance, nil
 }
 
+func GetTotalAttendances() (int64, error) {
+	total, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{})
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
 func GetAttendances(page int) ([]*db.Attendance, error) {
 	var attendances []*db.Attendance
 	var users []*db.User
@@ -137,6 +146,20 @@ func GetAttendances(page int) ([]*db.Attendance, error) {
 	}
 
 	return attendances, nil
+}
+
+func GetTotalAttendancesByDate(fromDate string, toDate string) (int64, error) {
+	total, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"date": bson.M{
+			"$gte": fromDate,
+			"$lte": toDate,
+		},
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 func GetAttendancesByDate(fromDate string, toDate string, page int) ([]db.Attendance, error) {

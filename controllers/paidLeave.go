@@ -3,6 +3,7 @@ package controllers
 import (
 	"attendit/backend/models"
 	"attendit/backend/services"
+	redisServices "attendit/backend/services/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -116,12 +117,28 @@ func GetPaidLeaves(c *gin.Context) {
 	userIdHex, _ := c.Get("userId")
 	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
 
-	paidLeaves, err := services.GetPaidLeavesByUserId(userId)
+	page, _ := strconv.Atoi(c.Query("page"))
+	if page == 0 {
+		page = 1
+	}
+
+	paidLeaves, err := redisServices.GetUserPaidLeavesFromCache(userId, page)
+	if err == nil {
+		response.StatusCode = 200
+		response.Success = true
+		response.Data = gin.H{"paidLeaves": paidLeaves, "cache": true}
+		response.SendResponse(c)
+		return
+	}
+
+	paidLeaves, err = services.GetPaidLeavesByUserId(userId, page)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
+
+	redisServices.CacheUserPaidLeaves(userId, paidLeaves, page)
 
 	response.StatusCode = 200
 	response.Success = true
@@ -144,12 +161,35 @@ func GetPaidLeavesAdmin(c *gin.Context) {
 		Success:    false,
 	}
 
-	paidLeaves, err := services.GetPaidLeaves()
+	totalPaidLeaves, err := services.GetTotalPaidLeaves()
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
+
+	page, _ := strconv.Atoi(c.Query("page"))
+	if page == 0 {
+		page = 1
+	}
+
+	paidLeaves, err := redisServices.GetPaidLeavesFromCache(page)
+	if err == nil {
+		response.StatusCode = 200
+		response.Success = true
+		response.Data = gin.H{"paidLeaves": paidLeaves, "total": totalPaidLeaves, "cache": true}
+		response.SendResponse(c)
+		return
+	}
+
+	paidLeaves, err = services.GetPaidLeaves(page)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	redisServices.CachePaidLeaves(paidLeaves, page)
 
 	response.StatusCode = 200
 	response.Success = true

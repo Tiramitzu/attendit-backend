@@ -36,6 +36,7 @@ func main() {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	time.Local = location
@@ -43,6 +44,7 @@ func main() {
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	services.LoadConfig()
@@ -57,13 +59,14 @@ func main() {
 			),
 		),
 		gocron.NewTask(
-			services.CheckOutAllAttendances(),
+			services.CheckOutAllAttendances,
 		),
 	)
-
 	if err != nil {
 		log.Println(err)
+		return
 	}
+
 	routes.InitGin()
 	router := routes.New()
 
@@ -78,6 +81,7 @@ func main() {
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			log.Printf("listen: %s\n", err)
+			return
 		}
 	}()
 

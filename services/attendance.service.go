@@ -2,6 +2,7 @@ package services
 
 import (
 	db "attendit/backend/models/db"
+	"fmt"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -50,6 +51,8 @@ func CheckOutAllAttendances() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("All attendances checked out")
 
 	return nil
 }

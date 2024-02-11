@@ -72,9 +72,9 @@ func main() {
 
 	server := &http.Server{
 		Addr:         services.Config.ServerAddr + ":" + services.Config.ServerPort,
-		WriteTimeout: time.Second * 30,
-		ReadTimeout:  time.Second * 30,
-		IdleTimeout:  time.Second * 30,
+		WriteTimeout: time.Minute,
+		ReadTimeout:  time.Minute,
+		IdleTimeout:  time.Minute,
 		Handler:      router,
 	}
 

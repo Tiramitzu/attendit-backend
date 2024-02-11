@@ -106,3 +106,13 @@ func (a ModifyUserRequest) Validate() error {
 		validation.Field(&a.Phone, is.Digit.Error(" tidak valid"), validation.Length(11, 14).Error("harus terdiri dari 11-14 karakter")),
 	)
 }
+
+type ModifyCompanyIPRequest struct {
+	IPAddresses []string `json:"ipAddresses"`
+}
+
+func (a ModifyCompanyIPRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.IPAddresses, Required),
+	)
+}

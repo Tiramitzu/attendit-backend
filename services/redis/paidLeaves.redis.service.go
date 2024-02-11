@@ -29,7 +29,7 @@ func CacheUserPaidLeaves(userId primitive.ObjectID, paidLeaves []*db.PaidLeave, 
 		Ctx:   context.TODO(),
 		Key:   userPaidLeavesCacheKey,
 		Value: paidLeaves,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 
@@ -55,7 +55,7 @@ func CachePaidLeaves(paidLeaves []*db.PaidLeave, page int) {
 		Ctx:   context.TODO(),
 		Key:   paidLeavesCacheKey,
 		Value: paidLeaves,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 

@@ -5,6 +5,7 @@ import (
 	"attendit/backend/services"
 	"attendit/backend/services/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
@@ -60,8 +61,17 @@ func ModifyCompany(c *gin.Context) {
 		Success:    false,
 	}
 
-	company, _ := services.GetCompany()
-	_ = c.ShouldBindJSON(&company)
+	var requestBody models.ModifyCompanyIPRequest
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+
+	company, err := services.GetCompany()
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	company.IPAddresses = requestBody.IPAddresses
 
 	updateCompany, err := services.UpdateCompany(company)
 	if err != nil {

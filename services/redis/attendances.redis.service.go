@@ -27,7 +27,7 @@ func CacheUserAttendancesByCompany(userId primitive.ObjectID, attendance []db.At
 		Ctx:   context.TODO(),
 		Key:   userAttendanceByCompanyCacheKey,
 		Value: attendance,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 
@@ -57,7 +57,7 @@ func CacheAttendances(page int, attendances []*db.Attendance) {
 		Ctx:   context.TODO(),
 		Key:   companyAttendancesCacheKey,
 		Value: attendances,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 
@@ -87,7 +87,7 @@ func CacheAttendanceTotal(total models.AttendanceTotal) {
 		Ctx:   context.TODO(),
 		Key:   attendanceTotalCacheKey,
 		Value: total,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 
@@ -117,7 +117,7 @@ func CacheAttendancesByDate(fromDate string, toDate string, page int, attendance
 		Ctx:   context.TODO(),
 		Key:   attendanceByDateCacheKey,
 		Value: attendances,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 
@@ -147,7 +147,7 @@ func CacheAttendanceTotalByDate(fromDate string, toDate string, total models.Att
 		Ctx:   context.TODO(),
 		Key:   attendanceTotalByDateCacheKey,
 		Value: total,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 

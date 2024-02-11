@@ -26,7 +26,7 @@ func CacheSchedule(schedule *models.Schedule) {
 		Ctx:   context.TODO(),
 		Key:   scheduleCacheKey,
 		Value: schedule,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 
@@ -56,7 +56,7 @@ func CacheUserSchedules(userId primitive.ObjectID, schedule *[]models.Schedule, 
 		Ctx:   context.TODO(),
 		Key:   userScheduleCacheKey,
 		Value: schedule,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 

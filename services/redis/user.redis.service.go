@@ -26,7 +26,7 @@ func CacheUser(user *db.User) {
 		Ctx:   context.TODO(),
 		Key:   userCacheKey,
 		Value: user,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 
@@ -56,7 +56,7 @@ func CacheUsers(page int, users []*db.User) {
 		Ctx:   context.TODO(),
 		Key:   usersCacheKey,
 		Value: users,
-		TTL:   time.Second * 30,
+		TTL:   time.Minute,
 	})
 }
 

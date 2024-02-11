@@ -1,12 +1,15 @@
 package services
 
 import (
+	"attendit/backend/models"
 	db "attendit/backend/models/db"
 	"fmt"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"strconv"
+	"time"
 )
 
 func GetAttendanceById(id primitive.ObjectID) (*db.Attendance, error) {
@@ -62,7 +65,7 @@ func GetUserAttendances(userId primitive.ObjectID, page int) ([]db.Attendance, e
 	opts := options.Find()
 	opts.SetLimit(25)
 	opts.SetSkip(int64(page-1) * 25)
-	opts.SetSort(bson.M{"createdAt": -1})
+	opts.SetSort(bson.M{"created_at": -1})
 	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{"userId": userId}, opts)
 
 	if err != nil {
@@ -77,7 +80,7 @@ func GetUserAttendancesByDate(userId primitive.ObjectID, fromDate string, toDate
 	opts := options.Find()
 	opts.SetLimit(25)
 	opts.SetSkip(int64(page-1) * 25)
-	opts.SetSort(bson.M{"updatedAt": -1})
+	opts.SetSort(bson.M{"created_at": -1})
 	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{
 		"userId": userId,
 		"date": bson.M{
@@ -107,13 +110,82 @@ func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Att
 	return attendance, nil
 }
 
-func GetTotalAttendances() (int64, error) {
-	total, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{})
+func GetTotalAttendances() (models.AttendanceTotal, error) {
+	totalAll, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{})
 	if err != nil {
-		return 0, err
+		return models.AttendanceTotal{}, err
 	}
 
-	return total, nil
+	day := time.Now().Day()
+	week, _ := time.Now().ISOWeek()
+	month := time.Now().Month()
+	year := time.Now().Year()
+
+	startWeek := WeekStart(year, week).Format("02-01-2006")
+	startWeekDay, _ := strconv.Atoi(startWeek[:2])
+	businessWeekDays := 0
+	for i := startWeekDay; i <= day; i++ {
+		Day := time.Date(year, month, i, 0, 0, 0, 0, time.UTC)
+		if Day.Weekday() != time.Saturday && Day.Weekday() != time.Sunday {
+			if Day.Format("02-01-2006") <= time.Now().Format("02-01-2006") {
+				businessWeekDays++
+			}
+		}
+	}
+
+	t := time.Date(year, month, 32, 0, 0, 0, 0, time.UTC)
+	daysInMonth := 32 - t.Day()
+	businessDays := 0
+	for i := 1; i <= daysInMonth; i++ {
+		Day := time.Date(year, month, i, 0, 0, 0, 0, time.UTC)
+		if Day.Weekday() != time.Saturday && Day.Weekday() != time.Sunday {
+			if Day.Format("02-01-2006") <= time.Now().Format("02-01-2006") {
+				businessDays++
+			}
+		}
+	}
+
+	totalUsers, err := mgm.Coll(&db.User{}).CountDocuments(mgm.Ctx(), bson.M{
+		"accessLevel": 0,
+	})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	totalPresentWeek, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"created_at": bson.M{
+			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, startWeekDay, 0, 0, 0, 0, time.UTC)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, businessWeekDays, 23, 59, 59, 1e9-1, time.UTC)),
+		},
+	})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	totalPresentMonth, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"created_at": bson.M{
+			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, day, 23, 59, 59, 1e9-1, time.UTC)),
+		},
+	})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	totalAbsentWeek := (totalUsers * 5) - totalPresentWeek
+	totalAbsentMonth := (totalUsers * int64(businessDays)) - totalPresentMonth
+
+	return models.AttendanceTotal{
+		All: totalAll,
+		Weekly: models.AttendanceWM{
+			Present: totalPresentWeek,
+			Absent:  totalAbsentWeek,
+		},
+		Monthly: models.AttendanceWM{
+			Present: totalPresentMonth,
+			Absent:  totalAbsentMonth,
+		},
+	}, nil
 }
 
 func GetAttendances(page int) ([]*db.Attendance, error) {
@@ -121,7 +193,7 @@ func GetAttendances(page int) ([]*db.Attendance, error) {
 	var users []*db.User
 
 	// Fetch attendances
-	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"createdAt": -1}))
+	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))
 	if err != nil {
 		return nil, err
 	}
@@ -148,26 +220,54 @@ func GetAttendances(page int) ([]*db.Attendance, error) {
 	return attendances, nil
 }
 
-func GetTotalAttendancesByDate(fromDate string, toDate string) (int64, error) {
-	total, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+func GetTotalAttendancesByDate(fromDate string, toDate string) (models.AttendanceTotal, error) {
+	totalAll, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
 		"date": bson.M{
 			"$gte": fromDate,
 			"$lte": toDate,
 		},
 	})
 	if err != nil {
-		return 0, err
+		return models.AttendanceTotal{}, err
 	}
 
-	return total, nil
+	totalPresent, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"date": bson.M{
+			"$gte": fromDate,
+			"$lte": toDate,
+		},
+		"checkIn": bson.M{"$ne": ""},
+	})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	totalAbsent, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"date": bson.M{
+			"$gte": fromDate,
+			"$lte": toDate,
+		},
+		"checkIn": "",
+	})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	return models.AttendanceTotal{
+		All: totalAll,
+		Weekly: models.AttendanceWM{
+			Present: totalPresent,
+			Absent:  totalAbsent,
+		},
+	}, nil
 }
 
-func GetAttendancesByDate(fromDate string, toDate string, page int) ([]db.Attendance, error) {
-	var attendances []db.Attendance
+func GetAttendancesByDate(fromDate string, toDate string, page int) ([]*db.Attendance, error) {
+	var attendances []*db.Attendance
 	opts := options.Find()
 	opts.SetLimit(25)
 	opts.SetSkip(int64(page-1) * 25)
-	opts.SetSort(bson.M{"createdAt": -1})
+	opts.SetSort(bson.M{"created_at": -1})
 	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{
 		"date": bson.M{
 			"$gte": fromDate,
@@ -180,4 +280,22 @@ func GetAttendancesByDate(fromDate string, toDate string, page int) ([]db.Attend
 	}
 
 	return attendances, nil
+}
+
+func WeekStart(year, week int) time.Time {
+	// Start from the middle of the year:
+	t := time.Date(year, 7, 1, 0, 0, 0, 0, time.UTC)
+
+	// Roll back to Monday:
+	if wd := t.Weekday(); wd == time.Sunday {
+		t = t.AddDate(0, 0, -6)
+	} else {
+		t = t.AddDate(0, 0, -int(wd)+1)
+	}
+
+	// Difference in weeks:
+	_, w := t.ISOWeek()
+	t = t.AddDate(0, 0, (week-w)*7)
+
+	return t
 }

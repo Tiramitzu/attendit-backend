@@ -38,7 +38,7 @@ func GetPaidLeaves(page int) ([]*db.PaidLeave, error) {
 	var paidLeaves []*db.PaidLeave
 	var users []*db.User
 
-	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"createdAt": -1}))
+	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, nil
@@ -68,7 +68,7 @@ func GetPaidLeaves(page int) ([]*db.PaidLeave, error) {
 
 func GetPaidLeavesByUserId(userId primitive.ObjectID, page int) ([]*db.PaidLeave, error) {
 	var paidLeaves []*db.PaidLeave
-	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{"userId": userId}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"createdAt": -1}))
+	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{"userId": userId}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, nil

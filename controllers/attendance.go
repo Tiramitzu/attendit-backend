@@ -255,37 +255,51 @@ func GetAttendances(c *gin.Context) {
 	toDate := c.Query("to")
 
 	if fromDate != "" && toDate != "" {
-		attendances, err := services.GetAttendancesByDate(fromDate, toDate, page)
+		totalAttendances, err := redisServices.GetAttendanceTotalByDateFromCache(fromDate, toDate)
 		if err != nil {
-			response.Message = err.Error()
-			response.SendErrorResponse(c)
+			totalAttendances, err = services.GetTotalAttendancesByDate(fromDate, toDate)
+			if err != nil {
+				response.Message = err.Error()
+				response.SendErrorResponse(c)
+				return
+			}
+
+			redisServices.CacheAttendanceTotalByDate(fromDate, toDate, totalAttendances)
+		}
+
+		attendances, err := redisServices.GetAttendancesByDateFromCache(fromDate, toDate, page)
+		if err == nil {
+			response.StatusCode = http.StatusOK
+			response.Success = true
+			response.Data = gin.H{"attendances": attendances, "totals": totalAttendances, "cache": true}
+			response.SendResponse(c)
 			return
 		}
 
-		totalAttendances, err := services.GetTotalAttendancesByDate(fromDate, toDate)
-		if err != nil {
-			response.Message = err.Error()
-			response.SendErrorResponse(c)
-			return
-		}
+		attendances, err = services.GetAttendancesByDate(fromDate, toDate, page)
 
 		response.StatusCode = http.StatusOK
 		response.Success = true
-		response.Data = gin.H{"attendances": attendances, "total": totalAttendances}
+		response.Data = gin.H{"attendances": attendances, "totals": totalAttendances}
 		response.SendResponse(c)
 		return
 	}
 
-	totalAttendances, err := services.GetTotalAttendances()
+	totalAttendances, err := redisServices.GetAttendanceTotalFromCache()
 	if err != nil {
-		response.Message = err.Error()
-		response.SendErrorResponse(c)
-		return
+		totalAttendances, err = services.GetTotalAttendances()
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+			return
+		}
+
+		redisServices.CacheAttendanceTotal(totalAttendances)
 	}
 
 	attendances, err := redisServices.GetAttendancesFromCache(page)
 	if err == nil {
-		models.SendResponseData(c, gin.H{"attendances": attendances, "total": totalAttendances, "cache": true})
+		models.SendResponseData(c, gin.H{"attendances": attendances, "totals": totalAttendances, "cache": true})
 		return
 	}
 
@@ -300,6 +314,6 @@ func GetAttendances(c *gin.Context) {
 
 	response.StatusCode = http.StatusOK
 	response.Success = true
-	response.Data = gin.H{"attendances": attendances, "total": totalAttendances}
+	response.Data = gin.H{"attendances": attendances, "totals": totalAttendances}
 	response.SendResponse(c)
 }

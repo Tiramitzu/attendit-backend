@@ -60,7 +60,7 @@ func IsAdminMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if user.AccessLevel != 1 {
+		if user.AccessLevel < 1 {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"success": false,
 				"message": "Unauthorized",

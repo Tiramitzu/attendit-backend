@@ -2,6 +2,7 @@ package models
 
 type AttendanceTotal struct {
 	All     int64        `json:"all"`
+	Today   AttendanceWM `json:"today"`
 	Weekly  AttendanceWM `json:"weekly"`
 	Monthly AttendanceWM `json:"monthly"`
 }

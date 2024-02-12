@@ -125,7 +125,7 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 
 	startWeek := WeekStart(year, week).Format("02-01-2006")
 	startWeekDay, _ := strconv.Atoi(startWeek[:2])
-	businessWeekDay := startWeekDay
+	businessWeekDay := startWeekDay - 1
 	businessWeekDays := 0
 	for i := startWeekDay; i <= day; i++ {
 		Day := time.Date(year, month, i, 0, 0, 0, 0, location)
@@ -163,7 +163,7 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 	totalPresentWeek, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
 		"created_at": bson.M{
 			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, startWeekDay, 0, 0, 0, 0, location)),
-			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, businessWeekDays, 23, 59, 59, 1e9-1, location)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, businessWeekDay, 23, 59, 59, 1e9-1, location)),
 		},
 	})
 	if err != nil {
@@ -296,7 +296,7 @@ func WeekStart(year, week int) time.Time {
 	if wd := t.Weekday(); wd == time.Sunday {
 		t = t.AddDate(0, 0, -6)
 	} else {
-		t = t.AddDate(0, 0, -int(wd)+1)
+		t = t.AddDate(0, 0, -int(wd)+4)
 	}
 
 	// Difference in weeks:

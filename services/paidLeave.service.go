@@ -11,7 +11,7 @@ import (
 
 func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
 	paidLeave := &db.PaidLeave{}
-	err := mgm.Coll(paidLeave).First(bson.M{"userId": userId, "accepted": false}, paidLeave)
+	err := mgm.Coll(paidLeave).First(bson.M{"userId": userId, "status": 0}, paidLeave)
 
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
@@ -80,8 +80,8 @@ func GetPaidLeavesByUserId(userId primitive.ObjectID, page int) ([]*db.PaidLeave
 	return paidLeaves, nil
 }
 
-func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate string, days int) (*db.PaidLeave, error) {
-	paidLeave := db.NewPaidLeave(userId, 0, primitive.NilObjectID, reason, startDate, days)
+func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate primitive.DateTime, days int, endDate primitive.DateTime) (*db.PaidLeave, error) {
+	paidLeave := db.NewPaidLeave(userId, 0, primitive.NilObjectID, reason, startDate, days, endDate)
 	err := mgm.Coll(paidLeave).Create(paidLeave)
 
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"strconv"
+	"time"
 )
 
 // CreatePaidLeave godoc
@@ -49,7 +50,17 @@ func CreatePaidLeave(c *gin.Context) {
 		return
 	}
 
-	paidLeave, err := services.CreatePaidLeave(user.ID, requestBody.Reason, requestBody.StartDate, requestBody.Days)
+	startTime, err := time.Parse("02-01-2006", requestBody.StartDate)
+	if err != nil {
+		response.Message = "Format tanggal tidak sesuai"
+		response.SendErrorResponse(c)
+		return
+	}
+	startDate := primitive.NewDateTimeFromTime(startTime)
+	endTime := startTime.AddDate(0, 0, requestBody.Days)
+	endDate := primitive.NewDateTimeFromTime(endTime)
+
+	paidLeave, err := services.CreatePaidLeave(user.ID, requestBody.Reason, startDate, requestBody.Days, endDate)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

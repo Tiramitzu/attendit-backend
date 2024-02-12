@@ -180,23 +180,19 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 		return models.AttendanceTotal{}, err
 	}
 
-	totalAbsentToday := totalUsers - totalPresentToday
-	totalAbsentWeek := (totalUsers * int64(businessWeekDays)) - totalPresentWeek
-	totalAbsentMonth := (totalUsers * int64(businessDays)) - totalPresentMonth
-
 	return models.AttendanceTotal{
 		All: totalAll,
 		Today: models.AttendanceWM{
 			Present: totalPresentToday,
-			Absent:  totalAbsentToday,
+			Absent:  totalUsers - totalPresentToday,
 		},
 		Weekly: models.AttendanceWM{
 			Present: totalPresentWeek,
-			Absent:  totalAbsentWeek,
+			Absent:  (totalUsers * int64(businessWeekDays)) - totalPresentWeek,
 		},
 		Monthly: models.AttendanceWM{
 			Present: totalPresentMonth,
-			Absent:  totalAbsentMonth,
+			Absent:  (totalUsers * int64(businessDays)) - totalPresentMonth,
 		},
 	}, nil
 }

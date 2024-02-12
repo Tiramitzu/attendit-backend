@@ -111,6 +111,8 @@ func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Att
 }
 
 func GetTotalAttendances() (models.AttendanceTotal, error) {
+	location, _ := time.LoadLocation("Asia/Jakarta")
+
 	totalAll, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{})
 	if err != nil {
 		return models.AttendanceTotal{}, err
@@ -123,21 +125,23 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 
 	startWeek := WeekStart(year, week).Format("02-01-2006")
 	startWeekDay, _ := strconv.Atoi(startWeek[:2])
+	businessWeekDay := startWeekDay
 	businessWeekDays := 0
 	for i := startWeekDay; i <= day; i++ {
-		Day := time.Date(year, month, i, 0, 0, 0, 0, time.UTC)
+		Day := time.Date(year, month, i, 0, 0, 0, 0, location)
 		if Day.Weekday() != time.Saturday && Day.Weekday() != time.Sunday {
 			if Day.Format("02-01-2006") <= time.Now().Format("02-01-2006") {
+				businessWeekDay++
 				businessWeekDays++
 			}
 		}
 	}
 
-	t := time.Date(year, month, 32, 0, 0, 0, 0, time.UTC)
+	t := time.Date(year, month, 32, 0, 0, 0, 0, location)
 	daysInMonth := 32 - t.Day()
 	businessDays := 0
 	for i := 1; i <= daysInMonth; i++ {
-		Day := time.Date(year, month, i, 0, 0, 0, 0, time.UTC)
+		Day := time.Date(year, month, i, 0, 0, 0, 0, location)
 		if Day.Weekday() != time.Saturday && Day.Weekday() != time.Sunday {
 			if Day.Format("02-01-2006") <= time.Now().Format("02-01-2006") {
 				businessDays++
@@ -154,8 +158,8 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 
 	totalPresentWeek, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
 		"created_at": bson.M{
-			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, startWeekDay, 0, 0, 0, 0, time.UTC)),
-			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, businessWeekDays, 23, 59, 59, 1e9-1, time.UTC)),
+			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, startWeekDay, 0, 0, 0, 0, location)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, businessWeekDays, 23, 59, 59, 1e9-1, location)),
 		},
 	})
 	if err != nil {
@@ -164,15 +168,15 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 
 	totalPresentMonth, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
 		"created_at": bson.M{
-			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)),
-			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, day, 23, 59, 59, 1e9-1, time.UTC)),
+			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, 1, 0, 0, 0, 0, location)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, day, 23, 59, 59, 1e9-1, location)),
 		},
 	})
 	if err != nil {
 		return models.AttendanceTotal{}, err
 	}
 
-	totalAbsentWeek := (totalUsers * 5) - totalPresentWeek
+	totalAbsentWeek := (totalUsers * int64(businessWeekDays)) - totalPresentWeek
 	totalAbsentMonth := (totalUsers * int64(businessDays)) - totalPresentMonth
 
 	return models.AttendanceTotal{
@@ -231,32 +235,23 @@ func GetTotalAttendancesByDate(fromDate string, toDate string) (models.Attendanc
 		return models.AttendanceTotal{}, err
 	}
 
-	totalPresent, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
-		"date": bson.M{
-			"$gte": fromDate,
-			"$lte": toDate,
-		},
-		"checkIn": bson.M{"$ne": ""},
+	totalUsers, err := mgm.Coll(&db.User{}).CountDocuments(mgm.Ctx(), bson.M{
+		"accessLevel": 0,
 	})
 	if err != nil {
 		return models.AttendanceTotal{}, err
 	}
 
-	totalAbsent, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
-		"date": bson.M{
-			"$gte": fromDate,
-			"$lte": toDate,
-		},
-		"checkIn": "",
-	})
-	if err != nil {
-		return models.AttendanceTotal{}, err
-	}
+	from, _ := time.Parse("02-01-2006", fromDate)
+	to, _ := time.Parse("02-01-2006", toDate)
+	days := int(to.Sub(from).Hours() / 24)
+
+	totalAbsent := totalUsers*int64(days) - totalAll
 
 	return models.AttendanceTotal{
 		All: totalAll,
 		Weekly: models.AttendanceWM{
-			Present: totalPresent,
+			Present: totalAll,
 			Absent:  totalAbsent,
 		},
 	}, nil
@@ -283,8 +278,10 @@ func GetAttendancesByDate(fromDate string, toDate string, page int) ([]*db.Atten
 }
 
 func WeekStart(year, week int) time.Time {
+	location, _ := time.LoadLocation("Asia/Jakarta")
+
 	// Start from the middle of the year:
-	t := time.Date(year, 7, 1, 0, 0, 0, 0, time.UTC)
+	t := time.Date(year, 7, 1, 0, 0, 0, 0, location)
 
 	// Roll back to Monday:
 	if wd := t.Weekday(); wd == time.Sunday {

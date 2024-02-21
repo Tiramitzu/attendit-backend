@@ -12,6 +12,10 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	{
 		users.GET("", controllers.GetUser)
 		users.GET(
+			"/feedbacks",
+			controllers.GetFeedbacks,
+		)
+		users.GET(
 			"/attendances",
 			controllers.GetUserAttendances,
 		)
@@ -35,6 +39,11 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 		users.POST(
 			"/paidLeave",
 			controllers.CreatePaidLeave,
+		)
+		users.POST(
+			"/feedback",
+			validators.FeedbackValidator(),
+			controllers.SendFeedback,
 		)
 		users.POST(
 			"/schedules",

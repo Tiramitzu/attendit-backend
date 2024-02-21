@@ -10,6 +10,10 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 	admin := router.Group("/admin", handlers...)
 	{
 		admin.PUT("/users", controllers.CreateUser)
+		admin.GET(
+			"/feedbacks",
+			controllers.GetFeedbacks,
+		)
 		admin.GET("/users",
 			controllers.GetUsers,
 		)

@@ -116,3 +116,13 @@ func (a ModifyCompanyIPRequest) Validate() error {
 		validation.Field(&a.IPAddresses, Required),
 	)
 }
+
+type FeedbackRequest struct {
+	Content string `json:"content"`
+}
+
+func (a FeedbackRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.Content, Required),
+	)
+}

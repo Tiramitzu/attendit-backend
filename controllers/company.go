@@ -71,7 +71,13 @@ func ModifyCompany(c *gin.Context) {
 		return
 	}
 
-	company.IPAddresses = requestBody.IPAddresses
+	if (requestBody.IPAddresses != nil) && (len(requestBody.IPAddresses) > 0) {
+		company.IPAddresses = requestBody.IPAddresses
+	}
+
+	if (requestBody.Locations != nil) && (len(requestBody.Locations) > 0) {
+		company.Locations = requestBody.Locations
+	}
 
 	updateCompany, err := services.UpdateCompany(company)
 	if err != nil {

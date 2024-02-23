@@ -109,11 +109,13 @@ func (a ModifyUserRequest) Validate() error {
 
 type ModifyCompanyIPRequest struct {
 	IPAddresses []string `json:"ipAddresses"`
+	Locations   []string `json:"location"`
 }
 
 func (a ModifyCompanyIPRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.IPAddresses, Required),
+		validation.Field(&a.Locations, Required),
 	)
 }
 

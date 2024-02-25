@@ -16,10 +16,11 @@ var passwordRule = []validation.Rule{
 }
 
 type PaidLeaveRequest struct {
-	UserId    string `json:"userId"`
-	Reason    string `json:"reason"`
-	StartDate string `json:"startDate"`
-	Days      int    `json:"days"`
+	UserId     string `json:"userId"`
+	Reason     string `json:"reason"`
+	StartDate  string `json:"startDate"`
+	Days       int    `json:"days"`
+	Attachment string `json:"attachment"`
 }
 
 func (a PaidLeaveRequest) Validate() error {
@@ -60,6 +61,7 @@ type CreateUser struct {
 	Password string `json:"password"`
 	FullName string `json:"fullName"`
 	Phone    string `json:"phone"`
+	Photo    string `json:"photo"`
 }
 
 func (a CreateUser) Validate() error {
@@ -68,6 +70,7 @@ func (a CreateUser) Validate() error {
 		validation.Field(&a.Password, passwordRule...),
 		validation.Field(&a.FullName, validation.Length(3, 0).Error("harus lebih dari 3 karakter")),
 		validation.Field(&a.Phone, validation.Length(11, 14).Error("harus terdiri dari 11-14 karakter")),
+		validation.Field(&a.Photo, Required),
 	)
 }
 

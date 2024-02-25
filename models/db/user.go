@@ -12,6 +12,7 @@ type User struct {
 	FullName         string `json:"fullName" bson:"fullName"`
 	Phone            string `json:"phone" bson:"phone"`
 	AccessLevel      int    `json:"accessLevel" bson:"accessLevel"`
+	Photo            string `json:"photo" bson:"photo"`
 }
 
 type UserClaims struct {
@@ -20,13 +21,14 @@ type UserClaims struct {
 	Type  string `json:"type"`
 }
 
-func NewUser(email string, password string, fullName string, phone string) *User {
+func NewUser(email string, password string, fullName string, phone string, photo string) *User {
 	return &User{
 		Email:       email,
 		Password:    password,
 		FullName:    fullName,
 		Phone:       phone,
 		AccessLevel: 0,
+		Photo:       photo,
 	}
 }
 

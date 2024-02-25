@@ -4,10 +4,13 @@ import (
 	"attendit/backend/models"
 	"attendit/backend/services"
 	redisServices "attendit/backend/services/redis"
+	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -59,6 +62,27 @@ func CreatePaidLeave(c *gin.Context) {
 	startDate := primitive.NewDateTimeFromTime(startTime)
 	endTime := startTime.AddDate(0, 0, requestBody.Days)
 	endDate := primitive.NewDateTimeFromTime(endTime)
+
+	if requestBody.Attachment != "" {
+		// decode base64 attachment
+		i := strings.Index(requestBody.Attachment, ",")
+		if i < 0 {
+			log.Fatal("no comma")
+		}
+		if !strings.Contains(requestBody.Attachment, "data:image/") {
+			response.Message = "Attachment harus berupa gambar"
+			response.SendErrorResponse(c)
+			return
+		}
+
+		dec := base64.NewDecoder(base64.StdEncoding, strings.NewReader(requestBody.Attachment[i+1:]))
+		_, err := dec.Read([]byte{})
+		if err != nil {
+			response.Message = "Attachment tidak valid"
+			response.SendErrorResponse(c)
+			return
+		}
+	}
 
 	paidLeave, err := services.CreatePaidLeave(user.ID, requestBody.Reason, startDate, requestBody.Days, endDate)
 	if err != nil {

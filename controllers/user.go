@@ -4,11 +4,14 @@ import (
 	"attendit/backend/models"
 	"attendit/backend/services"
 	redisServices "attendit/backend/services/redis"
+	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 // GetUser godoc
@@ -182,7 +185,28 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := services.CreateUser(requestBody.Email, requestBody.Password, requestBody.FullName, requestBody.Phone)
+	if requestBody.Photo != "" {
+		// decode base64 attachment
+		i := strings.Index(requestBody.Photo, ",")
+		if i < 0 {
+			log.Fatal("no comma")
+		}
+		if !strings.Contains(requestBody.Photo, "data:image/") {
+			response.Message = "Foto harus berupa gambar"
+			response.SendErrorResponse(c)
+			return
+		}
+
+		dec := base64.NewDecoder(base64.StdEncoding, strings.NewReader(requestBody.Photo[i+1:]))
+		_, err := dec.Read([]byte{})
+		if err != nil {
+			response.Message = "Foto tidak valid"
+			response.SendErrorResponse(c)
+			return
+		}
+	}
+
+	user, err := services.CreateUser(requestBody.Email, requestBody.Password, requestBody.FullName, requestBody.Phone, requestBody.Photo)
 	if err != nil {
 		response.StatusCode = http.StatusInternalServerError
 		response.Message = err.Error()

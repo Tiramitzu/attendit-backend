@@ -76,11 +76,13 @@ func (a CreateUser) Validate() error {
 
 type CheckInRequest struct {
 	Status string `json:"status"`
+	Image  string `json:"image"`
 }
 
 func (a CheckInRequest) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Status, Required),
+		validation.Field(&a.Image, Required),
 	)
 }
 

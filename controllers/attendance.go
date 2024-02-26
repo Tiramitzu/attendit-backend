@@ -5,12 +5,24 @@ import (
 	db "attendit/backend/models/db"
 	"attendit/backend/services"
 	redisServices "attendit/backend/services/redis"
+	"fmt"
+	"github.com/Kagami/go-face"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
+)
+
+const dataDir = "testdata"
+
+var (
+	modelsDir = filepath.Join(dataDir, "models")
+	imagesDir = filepath.Join(dataDir, "images")
 )
 
 // AttendanceCheckIn godoc
@@ -82,12 +94,112 @@ func AttendanceCheckIn(c *gin.Context) {
 		return
 	}
 
+	// Init the recognizer.
+	rec, err := face.NewRecognizer(modelsDir)
+	if err != nil {
+		log.Fatalf("Can't init face recognizer: %v", err)
+	}
+	// Free the resources when you're finished.
+	defer rec.Close()
+
+	fmt.Println("Recognizer Initialized")
+
+	photoPath, err := services.SaveImage(user.Photo, user, imagesDir, "photos")
+
+	// Print success message
+	log.Println("Image saved successfully at:", photoPath)
+	faces, err := rec.RecognizeFile(photoPath)
+	if err != nil {
+		err = os.Remove(photoPath)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+		}
+
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+	}
+	if len(faces) < 1 {
+		err = os.Remove(photoPath)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+		}
+
+		response.Message = "Wajah tidak ditemukan"
+		response.SendErrorResponse(c)
+		return
+	}
+
+	var samples []face.Descriptor
+	var cats []int32
+	for i, f := range faces {
+		samples = append(samples, f.Descriptor)
+		cats = append(cats, int32(i))
+	}
+	// Name the categories, i.e. people on the image.
+	labels := []string{
+		user.FullName,
+	}
+	// Pass samples to the recognizer.
+	rec.SetSamples(samples, cats)
+
+	imagesPath, err := services.SaveImage(requestBody.Image, user, imagesDir, "images")
+
+	// Recognize faces on that image.
+	imageFaces, err := rec.RecognizeFile(imagesPath)
+	if err != nil {
+		err = os.Remove(imagesPath)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+		}
+
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	if len(imageFaces) < 1 {
+		err = os.Remove(imagesPath)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+		}
+
+		response.Message = "Wajah tidak ditemukan"
+		response.SendErrorResponse(c)
+		return
+	}
+
+	// Classify the image
+	catID := rec.Classify(imageFaces[0].Descriptor)
+	if catID < 0 {
+		response.Message = "Wajah tidak ditemukan"
+		response.SendErrorResponse(c)
+		return
+	}
+
+	fmt.Println(labels[catID])
+
 	attendance := db.NewAttendance(user.ID, ipAddress, currentDate, requestBody.Status, currentTime, "")
 	newAttendance, err := services.AttendanceCheckIn(attendance)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
+	}
+
+	err = os.Remove(photoPath)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+	}
+
+	err = os.Remove(imagesPath)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
 	}
 
 	response.StatusCode = http.StatusOK

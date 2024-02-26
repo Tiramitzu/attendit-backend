@@ -3,6 +3,7 @@ module attendit/backend
 go 1.20
 
 require (
+	github.com/Kagami/go-face v0.0.0-20210630145111-0c14797b4d0e
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-co-op/gocron/v2 v2.2.4
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible

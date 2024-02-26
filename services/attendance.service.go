@@ -3,12 +3,18 @@ package services
 import (
 	"attendit/backend/models"
 	db "attendit/backend/models/db"
+	"encoding/base64"
 	"fmt"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"image/jpeg"
+	"log"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -300,4 +306,41 @@ func WeekStart(year, week int) time.Time {
 	t = t.AddDate(0, 0, (week-w)*7)
 
 	return t
+}
+
+func SaveImage(base string, user *db.User, imagesDir string, types string) (string, error) {
+	// Assume user.Photo contains base64-encoded JPEG data
+	// Decode the base64 string to obtain the image data
+	photoData := base64.NewDecoder(base64.StdEncoding, strings.NewReader(base))
+
+	// Decode the JPEG data into an image
+	pht, err := jpeg.Decode(photoData)
+	if err != nil {
+		log.Println("Error decoding JPEG:", err)
+		return "", err
+	}
+
+	// Create the directory if it doesn't exist
+	err = os.MkdirAll(imagesDir, os.ModePerm)
+	if err != nil {
+		log.Println("Error creating directory:", err)
+		return "", err
+	}
+
+	photoPath := filepath.Join(imagesDir, "user-"+types+"-"+user.ID.Hex()+".jpg")
+	file, err := os.Create(photoPath)
+	if err != nil {
+		log.Println("Error creating image file:", err)
+		return "", err
+	}
+	defer file.Close()
+
+	// Write the image data to the file
+	err = jpeg.Encode(file, pht, nil)
+	if err != nil {
+		log.Println("Error encoding image to JPEG:", err)
+		return "", err
+	}
+
+	return photoPath, nil
 }

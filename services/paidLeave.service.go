@@ -7,11 +7,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"time"
 )
 
 func GetActiveRequest(userId primitive.ObjectID) (*db.PaidLeave, error) {
 	paidLeave := &db.PaidLeave{}
-	err := mgm.Coll(paidLeave).First(bson.M{"userId": userId, "status": 0}, paidLeave)
+	err := mgm.Coll(paidLeave).First(bson.M{"userId": userId,
+		"status":  0,
+		"endDate": bson.M{"$gte": primitive.NewDateTimeFromTime(time.Now())}},
+		paidLeave)
 
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {

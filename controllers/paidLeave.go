@@ -184,6 +184,40 @@ func GetPaidLeavesAdmin(c *gin.Context) {
 		page = 1
 	}
 
+	status := c.Query("status")
+	if status != "" {
+		statusInt, err := strconv.Atoi(status)
+		if err != nil {
+			response.Message = "Status harus berupa angka"
+			response.SendErrorResponse(c)
+			return
+		}
+
+		paidLeaves, err := redisServices.GetPaidLeavesByStatusFromCache(status, page)
+		if err == nil {
+			response.StatusCode = 200
+			response.Success = true
+			response.Data = gin.H{"paidLeaves": paidLeaves, "total": totalPaidLeaves, "cache": true}
+			response.SendResponse(c)
+			return
+		}
+
+		paidLeaves, err = services.GetPaidLeavesByStatus(statusInt, page)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+			return
+		}
+
+		redisServices.CachePaidLeavesByStatus(status, paidLeaves, page)
+
+		response.StatusCode = 200
+		response.Success = true
+		response.Data = gin.H{"paidLeaves": paidLeaves, "total": totalPaidLeaves}
+		response.SendResponse(c)
+		return
+	}
+
 	paidLeaves, err := redisServices.GetPaidLeavesFromCache(page)
 	if err == nil {
 		response.StatusCode = 200

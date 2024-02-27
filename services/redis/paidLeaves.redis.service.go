@@ -14,10 +14,6 @@ func getUserPaidLeavesCacheKey(userId primitive.ObjectID, page int) string {
 	return "req:cache:paidLeaves:" + userId.Hex() + ":" + strconv.Itoa(page)
 }
 
-func getPaidLeavesCacheKey(page int) string {
-	return "req:cache:paidLeaves:" + strconv.Itoa(page)
-}
-
 func CacheUserPaidLeaves(userId primitive.ObjectID, paidLeaves []*db.PaidLeave, page int) {
 	if !services.Config.UseRedis {
 		return
@@ -44,6 +40,10 @@ func GetUserPaidLeavesFromCache(userId primitive.ObjectID, page int) ([]*db.Paid
 	return paidLeaves, err
 }
 
+func getPaidLeavesCacheKey(page int) string {
+	return "req:cache:paidLeaves:" + strconv.Itoa(page)
+}
+
 func CachePaidLeaves(paidLeaves []*db.PaidLeave, page int) {
 	if !services.Config.UseRedis {
 		return
@@ -66,6 +66,37 @@ func GetPaidLeavesFromCache(page int) ([]*db.PaidLeave, error) {
 
 	var paidLeaves []*db.PaidLeave
 	paidLeavesCacheKey := getPaidLeavesCacheKey(page)
+	err := services.GetRedisCache().Get(context.TODO(), paidLeavesCacheKey, &paidLeaves)
+	return paidLeaves, err
+}
+
+func getPaidLeavesByStatusCacheKey(status string, page int) string {
+	return "req:cache:paidLeaves:" + status + ":" + strconv.Itoa(page)
+}
+
+func CachePaidLeavesByStatus(status string, paidLeaves []*db.PaidLeave, page int) {
+	if !services.Config.UseRedis {
+		return
+	}
+
+	paidLeavesCacheKey := getPaidLeavesByStatusCacheKey(status, page)
+
+	_ = services.GetRedisCache().Set(&cache.Item{
+		Ctx:   context.TODO(),
+		Key:   paidLeavesCacheKey,
+		Value: paidLeaves,
+		TTL:   time.Minute,
+	})
+
+}
+
+func GetPaidLeavesByStatusFromCache(status string, page int) ([]*db.PaidLeave, error) {
+	if !services.Config.UseRedis {
+		return nil, nil
+	}
+
+	var paidLeaves []*db.PaidLeave
+	paidLeavesCacheKey := "req:cache:paidLeaves:" + status + ":" + strconv.Itoa(page)
 	err := services.GetRedisCache().Get(context.TODO(), paidLeavesCacheKey, &paidLeaves)
 	return paidLeaves, err
 }

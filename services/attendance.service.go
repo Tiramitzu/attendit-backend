@@ -116,6 +116,89 @@ func GetAttendanceByUserAndDate(userId primitive.ObjectID, date string) (*db.Att
 	return attendance, nil
 }
 
+func GetUserTotalAttendances(userId primitive.ObjectID) (models.AttendanceTotal, error) {
+	location, _ := time.LoadLocation("Asia/Jakarta")
+
+	totalAll, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{"userId": userId})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	day := time.Now().Day()
+	month := time.Now().Month()
+	year, week := time.Now().ISOWeek()
+
+	startWeek := WeekStart(year, week).Format("02-01-2006")
+	startWeekDay, _ := strconv.Atoi(startWeek[:2])
+	businessWeekDay := startWeekDay
+
+	businessWeekDays := 0
+	for i := startWeekDay; i <= day; i++ {
+		Day := time.Date(year, month, i, 0, 0, 0, 0, location)
+		if Day.Weekday() != time.Saturday && Day.Weekday() != time.Sunday {
+			if Day.Format("02-01-2006") <= time.Now().Format("02-01-2006") {
+				businessWeekDay++
+				businessWeekDays++
+			}
+		}
+	}
+
+	t := time.Date(year, month, 32, 0, 0, 0, 0, location)
+	daysInMonth := 32 - t.Day()
+	businessDays := 0
+	for i := 1; i <= daysInMonth; i++ {
+		Day := time.Date(year, month, i, 0, 0, 0, 0, location)
+		if Day.Weekday() != time.Saturday && Day.Weekday() != time.Sunday {
+			if Day.Format("02-01-2006") <= time.Now().Format("02-01-2006") {
+				businessDays++
+			}
+		}
+	}
+
+	totalPresentToday, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"userId":     userId,
+		"created_at": primitive.NewDateTimeFromTime(time.Date(year, month, day, 0, 0, 0, 0, location)),
+	})
+
+	totalPresentWeek, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"userId": userId,
+		"created_at": bson.M{
+			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, startWeekDay, 0, 0, 0, 0, location)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, businessWeekDay, 23, 59, 59, 1e9-1, location)),
+		},
+	})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	totalPresentMonth, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
+		"userId": userId,
+		"created_at": bson.M{
+			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, 1, 0, 0, 0, 0, location)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, day, 23, 59, 59, 1e9-1, location)),
+		},
+	})
+	if err != nil {
+		return models.AttendanceTotal{}, err
+	}
+
+	return models.AttendanceTotal{
+		All: totalAll,
+		Today: models.AttendanceWM{
+			Present: totalPresentToday,
+			Absent:  totalAll - totalPresentToday,
+		},
+		Weekly: models.AttendanceWM{
+			Present: totalPresentWeek,
+			Absent:  (totalAll * int64(businessWeekDays)) - totalPresentWeek,
+		},
+		Monthly: models.AttendanceWM{
+			Present: totalPresentMonth,
+			Absent:  (totalAll * int64(businessDays)) - totalPresentMonth,
+		},
+	}, nil
+}
+
 func GetTotalAttendances() (models.AttendanceTotal, error) {
 	location, _ := time.LoadLocation("Asia/Jakarta")
 

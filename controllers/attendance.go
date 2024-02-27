@@ -282,12 +282,30 @@ func GetUserAttendances(c *gin.Context) {
 	page, _ := strconv.Atoi(c.Query("page"))
 	userIdHex, _ := c.Get("userId")
 	userId, _ := primitive.ObjectIDFromHex(userIdHex.(string))
+	user, err := services.GetUserById(userId)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
 	if page == 0 {
 		page = 1
 	}
 
 	fromDate := c.Query("from")
 	toDate := c.Query("to")
+
+	totalAttendances, err := redisServices.GetUserAttendanceTotalFromCache(user.ID)
+	if err != nil {
+		totalAttendances, err = services.GetUserTotalAttendances(user.ID)
+		if err != nil {
+			response.Message = err.Error()
+			response.SendErrorResponse(c)
+			return
+		}
+
+		redisServices.CacheUserAttendanceTotal(user.ID, totalAttendances)
+	}
 
 	if fromDate != "" && toDate != "" {
 		attendances, err := services.GetUserAttendancesByDate(userId, fromDate, toDate, page)
@@ -299,15 +317,8 @@ func GetUserAttendances(c *gin.Context) {
 
 		response.StatusCode = http.StatusOK
 		response.Success = true
-		response.Data = gin.H{"attendances": attendances}
+		response.Data = gin.H{"attendances": attendances, "totals": totalAttendances}
 		response.SendResponse(c)
-		return
-	}
-
-	user, err := services.GetUserById(userId)
-	if err != nil {
-		response.Message = err.Error()
-		response.SendErrorResponse(c)
 		return
 	}
 
@@ -316,7 +327,7 @@ func GetUserAttendances(c *gin.Context) {
 	if cacheErr == nil {
 		response.StatusCode = http.StatusOK
 		response.Success = true
-		response.Data = gin.H{"attendances": attendances, "cache": true}
+		response.Data = gin.H{"attendances": attendances, "totals": totalAttendances, "cache": true}
 		response.SendResponse(c)
 		return
 	}

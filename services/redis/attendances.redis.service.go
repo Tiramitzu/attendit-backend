@@ -72,6 +72,36 @@ func GetAttendancesFromCache(page int) ([]*db.Attendance, error) {
 	return attendances, err
 }
 
+func getUserAttendanceTotalCacheKey(userId primitive.ObjectID) string {
+	return "req:cache:user:attendance:total:" + userId.Hex()
+}
+
+func CacheUserAttendanceTotal(userId primitive.ObjectID, total models.AttendanceTotal) {
+	if !services.Config.UseRedis {
+		return
+	}
+
+	userAttendanceTotalCacheKey := getUserAttendanceTotalCacheKey(userId)
+
+	_ = services.GetRedisCache().Set(&cache.Item{
+		Ctx:   context.TODO(),
+		Key:   userAttendanceTotalCacheKey,
+		Value: total,
+		TTL:   time.Minute,
+	})
+}
+
+func GetUserAttendanceTotalFromCache(userId primitive.ObjectID) (models.AttendanceTotal, error) {
+	if !services.Config.UseRedis {
+		return models.AttendanceTotal{}, errors.New("no redis client, set USE_REDIS in .env")
+	}
+
+	var total models.AttendanceTotal
+	userAttendanceTotalCacheKey := getUserAttendanceTotalCacheKey(userId)
+	err := services.GetRedisCache().Get(context.TODO(), userAttendanceTotalCacheKey, &total)
+	return total, err
+}
+
 func getAttendanceTotalCacheKey() string {
 	return "req:cache:company:attendance:total"
 }

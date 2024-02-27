@@ -36,6 +36,11 @@ func AdminRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetUserAttendances,
 		)
 		admin.PATCH(
+			"/feedbacks/:id",
+			validators.PathIdValidator(),
+			controllers.UpdateFeedbackStatus,
+		)
+		admin.PATCH(
 			"/users/:userId",
 			validators.PathUserIdValidator(),
 			controllers.UpdateUser,

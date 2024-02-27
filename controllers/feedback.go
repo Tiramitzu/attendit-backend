@@ -122,3 +122,30 @@ func SendFeedback(c *gin.Context) {
 	}
 	response.SendResponse(c)
 }
+
+func UpdateFeedbackStatus(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: 400,
+		Success:    false,
+	}
+
+	var requestBody models.FeedbackStatusRequest
+	_ = c.ShouldBindBodyWith(&requestBody, binding.JSON)
+
+	feedbackIdHex := c.Param("id")
+	feedbackId, _ := primitive.ObjectIDFromHex(feedbackIdHex)
+
+	feedback, err := services.UpdateFeedbackStatus(feedbackId, requestBody.Status)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	response.StatusCode = 200
+	response.Success = true
+	response.Data = gin.H{
+		"feedback": feedback,
+	}
+	response.SendResponse(c)
+}

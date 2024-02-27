@@ -59,3 +59,21 @@ func SendFeedback(feedback *db.Feedback) (*db.Feedback, error) {
 
 	return feedback, nil
 }
+
+func UpdateFeedbackStatus(id primitive.ObjectID, status string) (*db.Feedback, error) {
+	feedback := &db.Feedback{}
+	err := mgm.Coll(feedback).FindByID(id, feedback)
+
+	if err != nil {
+		return nil, err
+	}
+
+	feedback.Status = status
+	err = mgm.Coll(feedback).Update(feedback)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return feedback, nil
+}

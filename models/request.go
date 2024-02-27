@@ -133,3 +133,13 @@ func (a FeedbackRequest) Validate() error {
 		validation.Field(&a.Content, Required),
 	)
 }
+
+type FeedbackStatusRequest struct {
+	Status string `json:"status"`
+}
+
+func (a FeedbackStatusRequest) Validate() error {
+	return validation.ValidateStruct(&a,
+		validation.Field(&a.Status, Required),
+	)
+}

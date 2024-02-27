@@ -156,8 +156,11 @@ func GetUserTotalAttendances(userId primitive.ObjectID) (models.AttendanceTotal,
 	}
 
 	totalPresentToday, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
-		"userId":     userId,
-		"created_at": primitive.NewDateTimeFromTime(time.Date(year, month, day, 0, 0, 0, 0, location)),
+		"userId": userId,
+		"created_at": bson.M{
+			"$gte": primitive.NewDateTimeFromTime(time.Date(year, month, day, 0, 0, 0, 0, location)),
+			"$lte": primitive.NewDateTimeFromTime(time.Date(year, month, day, 23, 59, 59, 1e9-1, location)),
+		},
 	})
 
 	totalPresentWeek, err := mgm.Coll(&db.Attendance{}).CountDocuments(mgm.Ctx(), bson.M{
@@ -186,15 +189,15 @@ func GetUserTotalAttendances(userId primitive.ObjectID) (models.AttendanceTotal,
 		All: totalAll,
 		Today: models.AttendanceWM{
 			Present: totalPresentToday,
-			Absent:  totalAll - totalPresentToday,
+			Absent:  totalPresentToday,
 		},
 		Weekly: models.AttendanceWM{
 			Present: totalPresentWeek,
-			Absent:  (totalAll * int64(businessWeekDays)) - totalPresentWeek,
+			Absent:  (int64(businessWeekDays)) - totalPresentWeek,
 		},
 		Monthly: models.AttendanceWM{
 			Present: totalPresentMonth,
-			Absent:  (totalAll * int64(businessDays)) - totalPresentMonth,
+			Absent:  (int64(businessDays)) - totalPresentMonth,
 		},
 	}, nil
 }

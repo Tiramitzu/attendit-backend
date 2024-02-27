@@ -125,13 +125,13 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 	}
 
 	day := time.Now().Day()
-	week, _ := time.Now().ISOWeek()
 	month := time.Now().Month()
-	year := time.Now().Year()
+	year, week := time.Now().ISOWeek()
 
 	startWeek := WeekStart(year, week).Format("02-01-2006")
 	startWeekDay, _ := strconv.Atoi(startWeek[:2])
-	businessWeekDay := startWeekDay - 1
+	businessWeekDay := startWeekDay
+
 	businessWeekDays := 0
 	for i := startWeekDay; i <= day; i++ {
 		Day := time.Date(year, month, i, 0, 0, 0, 0, location)
@@ -291,14 +291,16 @@ func GetAttendancesByDate(fromDate string, toDate string, page int) ([]*db.Atten
 func WeekStart(year, week int) time.Time {
 	location, _ := time.LoadLocation("Asia/Jakarta")
 
-	// Start from the middle of the year:
-	t := time.Date(year, 7, 1, 0, 0, 0, 0, location)
+	// Start from the first day of the year:
+	t := time.Date(year, 1, 1, 0, 0, 0, 0, location)
 
-	// Roll back to Monday:
-	if wd := t.Weekday(); wd == time.Sunday {
-		t = t.AddDate(0, 0, -6)
-	} else {
-		t = t.AddDate(0, 0, -int(wd)+4)
+	// Roll forward to Monday of the first week:
+	if wd := t.Weekday(); wd != time.Monday {
+		daysToAdd := time.Monday - wd
+		if daysToAdd < 0 {
+			daysToAdd += 7 // If it's before Monday, roll forward to the next Monday
+		}
+		t = t.AddDate(0, 0, int(daysToAdd))
 	}
 
 	// Difference in weeks:
@@ -333,7 +335,11 @@ func SaveImage(base string, user *db.User, imagesDir string, types string) (stri
 		log.Println("Error creating image file:", err)
 		return "", err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+		}
+	}(file)
 
 	// Write the image data to the file
 	err = jpeg.Encode(file, pht, nil)

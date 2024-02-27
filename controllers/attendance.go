@@ -349,7 +349,7 @@ func GetUserAttendances(c *gin.Context) {
 	// Send a success response
 	response.StatusCode = http.StatusOK
 	response.Success = true
-	response.Data = gin.H{"attendances": attendances}
+	response.Data = gin.H{"attendances": attendances, "totals": totalAttendances}
 	response.SendResponse(c)
 }
 

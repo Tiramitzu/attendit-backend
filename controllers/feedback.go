@@ -38,25 +38,26 @@ func GetFeedbacks(c *gin.Context) {
 		isAdmin = false
 	}
 
-	feedbacks, err := redisServices.GetFeedbacksFromCache(user.ID, isAdmin, page)
-	if err == nil {
-		response.StatusCode = 200
-		response.Success = true
-		response.Data = gin.H{
-			"feedbacks": feedbacks,
-		}
-		response.SendResponse(c)
-		return
-	}
-
-	feedbacks, err = services.GetFeedbacks(user.ID, isAdmin, page)
+	totalFeedbacks, err := services.GetTotalFeedbacks()
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
 
-	totalFeedbacks, err := services.GetTotalFeedbacks()
+	feedbacks, err := redisServices.GetFeedbacksFromCache(user.ID, isAdmin, page)
+	if err == nil {
+		response.StatusCode = 200
+		response.Success = true
+		response.Data = gin.H{
+			"feedbacks":      feedbacks,
+			"totalFeedbacks": totalFeedbacks,
+		}
+		response.SendResponse(c)
+		return
+	}
+
+	feedbacks, err = services.GetFeedbacks(user.ID, isAdmin, page)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

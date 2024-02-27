@@ -205,7 +205,7 @@ func GetTotalAttendances() (models.AttendanceTotal, error) {
 
 func GetAttendances(page int) ([]*db.Attendance, error) {
 	var attendances []*db.Attendance
-	var users []*db.User
+	var users []*db.UserWithoutProfPic
 
 	// Fetch attendances
 	err := mgm.Coll(&db.Attendance{}).SimpleFind(&attendances, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))

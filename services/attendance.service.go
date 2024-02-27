@@ -304,9 +304,6 @@ func GetAttendances(page int) ([]*db.Attendance, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
 
 	// Combine attendances and users
 	for _, attendance := range attendances {

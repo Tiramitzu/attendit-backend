@@ -7,9 +7,10 @@ import (
 
 type Feedback struct {
 	mgm.DefaultModel `bson:",inline"`
-	From             primitive.ObjectID `json:"from" bson:"from"`
-	Content          string             `json:"content" bson:"content"`
-	Status           string             `json:"status" bson:"status"`
+	From             primitive.ObjectID  `json:"from" bson:"from"`
+	Content          string              `json:"content" bson:"content"`
+	Status           string              `json:"status" bson:"status"`
+	User             *UserWithoutProfPic `json:"user" bson:"user"`
 }
 
 func NewFeedback(from primitive.ObjectID, content string) *Feedback {

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strconv"
 )
 
 func GetFeedbacks(c *gin.Context) {
@@ -25,6 +26,11 @@ func GetFeedbacks(c *gin.Context) {
 		return
 	}
 
+	page, _ := strconv.Atoi(c.Query("page"))
+	if page == 0 {
+		page = 1
+	}
+
 	var isAdmin bool
 	if user.AccessLevel == 1 {
 		isAdmin = true
@@ -32,7 +38,7 @@ func GetFeedbacks(c *gin.Context) {
 		isAdmin = false
 	}
 
-	feedbacks, err := redisServices.GetFeedbacksFromCache(user.ID, isAdmin)
+	feedbacks, err := redisServices.GetFeedbacksFromCache(user.ID, isAdmin, page)
 	if err == nil {
 		response.StatusCode = 200
 		response.Success = true
@@ -43,7 +49,7 @@ func GetFeedbacks(c *gin.Context) {
 		return
 	}
 
-	feedbacks, err = services.GetFeedbacks(user.ID, isAdmin)
+	feedbacks, err = services.GetFeedbacks(user.ID, isAdmin, page)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
@@ -57,7 +63,7 @@ func GetFeedbacks(c *gin.Context) {
 		return
 	}
 
-	redisServices.CacheFeedbacks(user.ID, feedbacks, isAdmin)
+	redisServices.CacheFeedbacks(user.ID, feedbacks, isAdmin, page)
 	response.StatusCode = 200
 	response.Success = true
 	response.Data = gin.H{
@@ -93,20 +99,20 @@ func SendFeedback(c *gin.Context) {
 		return
 	}
 
-	feedbacksAll, err := services.GetFeedbacks(user.ID, true)
+	feedbacksAll, err := services.GetFeedbacks(user.ID, true, 1)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
-	redisServices.CacheFeedbacks(user.ID, feedbacksAll, true)
-	feedbacksUser, err := services.GetFeedbacks(user.ID, false)
+	redisServices.CacheFeedbacks(user.ID, feedbacksAll, true, 1)
+	feedbacksUser, err := services.GetFeedbacks(user.ID, false, 1)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)
 		return
 	}
-	redisServices.CacheFeedbacks(user.ID, feedbacksUser, false)
+	redisServices.CacheFeedbacks(user.ID, feedbacksUser, false, 1)
 
 	response.StatusCode = 200
 	response.Success = true

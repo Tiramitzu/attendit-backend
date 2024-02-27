@@ -24,6 +24,16 @@ func GetFeedbacks(userId primitive.ObjectID, isAdmin bool) ([]*db.Feedback, erro
 	return feedbacks, nil
 }
 
+func GetTotalFeedbacks() (int64, error) {
+	total, err := mgm.Coll(&db.Feedback{}).CountDocuments(mgm.Ctx(), bson.M{})
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
 func SendFeedback(feedback *db.Feedback) (*db.Feedback, error) {
 	err := mgm.Coll(feedback).Create(feedback)
 

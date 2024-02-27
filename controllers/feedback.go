@@ -50,11 +50,19 @@ func GetFeedbacks(c *gin.Context) {
 		return
 	}
 
+	totalFeedbacks, err := services.GetTotalFeedbacks()
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
 	redisServices.CacheFeedbacks(user.ID, feedbacks, isAdmin)
 	response.StatusCode = 200
 	response.Success = true
 	response.Data = gin.H{
-		"feedbacks": feedbacks,
+		"feedbacks":      feedbacks,
+		"totalFeedbacks": totalFeedbacks,
 	}
 	response.SendResponse(c)
 }

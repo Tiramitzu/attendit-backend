@@ -13,7 +13,7 @@ func GetFeedbacks(userId primitive.ObjectID, isAdmin bool, page int) ([]*db.Feed
 	var users []*db.UserWithoutProfPic
 
 	if isAdmin {
-		err := mgm.Coll(&db.Attendance{}).SimpleFind(&feedbacks, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))
+		err := mgm.Coll(&db.Feedback{}).SimpleFind(&feedbacks, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))
 		if err != nil {
 			return nil, err
 		}

@@ -29,6 +29,11 @@ func UserRoute(router *gin.RouterGroup, handlers ...gin.HandlerFunc) {
 			controllers.GetUserSchedule,
 		)
 		users.GET(
+			"/paidLeave/attachment/:id",
+			validators.PathIdValidator(),
+			controllers.GetPaidLeaveAttachment,
+		)
+		users.GET(
 			"/paidLeave",
 			controllers.GetActivePaidLeave,
 		)

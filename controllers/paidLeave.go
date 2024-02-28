@@ -157,6 +157,39 @@ func GetPaidLeaves(c *gin.Context) {
 	response.SendResponse(c)
 }
 
+// GetPaidLeaveAttachment godoc
+// @Summary      GetPaidLeaveAttachment
+// @Description  get paid leave attachment
+// @Tags         paidLeave
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "PaidLeave ID"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Router       /users/{userId}/paidLeave/attachment/{id} [get]
+func GetPaidLeaveAttachment(c *gin.Context) {
+	response := &models.Response{
+		StatusCode: 400,
+		Success:    false,
+	}
+
+	paidLeaveIdHex := c.Param("id")
+	paidLeaveId, _ := primitive.ObjectIDFromHex(paidLeaveIdHex)
+
+	paidLeave, err := services.GetPaidLeaveById(paidLeaveId)
+	if err != nil {
+		response.Message = err.Error()
+		response.SendErrorResponse(c)
+		return
+	}
+
+	response.StatusCode = 200
+	response.Success = true
+	response.Data = gin.H{"attachment": paidLeave.Attachment}
+	response.SendResponse(c)
+
+}
+
 // GetPaidLeavesAdmin godoc
 // @Summary      GetPaidLeavesAdmin
 // @Description  get all paid leave requests

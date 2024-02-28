@@ -113,7 +113,23 @@ func GetPaidLeavesByUserId(userId primitive.ObjectID, page int) ([]*db.PaidLeave
 		return nil, errors.New("Gagal mendapatkan data cuti")
 	}
 
+	// remove attachment
+	for _, paidLeave := range paidLeaves {
+		paidLeave.Attachment = ""
+	}
+
 	return paidLeaves, nil
+}
+
+func GetPaidLeaveById(paidLeaveId primitive.ObjectID) (*db.PaidLeave, error) {
+	paidLeave := &db.PaidLeave{}
+	err := mgm.Coll(paidLeave).First(bson.M{"_id": paidLeaveId}, paidLeave)
+
+	if err != nil {
+		return nil, errors.New("Gagal mendapatkan data cuti")
+	}
+
+	return paidLeave, nil
 }
 
 func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate primitive.DateTime, days int, endDate primitive.DateTime, attachment string) (*db.PaidLeave, error) {

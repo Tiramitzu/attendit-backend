@@ -92,6 +92,8 @@ func GetPaidLeavesByStatus(status int, page int) ([]*db.PaidLeave, error) {
 	}
 
 	for _, paidLeave := range paidLeaves {
+		paidLeave.Attachment = ""
+
 		for _, user := range users {
 			if user.ID == paidLeave.UserId {
 				paidLeave.User = user

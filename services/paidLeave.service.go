@@ -50,7 +50,7 @@ func GetPaidLeaves(page int) ([]*db.PaidLeave, error) {
 		return nil, errors.New("Gagal mendapatkan data cuti")
 	}
 
-	err = mgm.Coll(&db.UserWithoutProfPic{}).SimpleFind(&users, bson.M{})
+	err = mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{})
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, nil

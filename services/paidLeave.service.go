@@ -116,8 +116,8 @@ func GetPaidLeavesByUserId(userId primitive.ObjectID, page int) ([]*db.PaidLeave
 	return paidLeaves, nil
 }
 
-func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate primitive.DateTime, days int, endDate primitive.DateTime) (*db.PaidLeave, error) {
-	paidLeave := db.NewPaidLeave(userId, 0, primitive.NilObjectID, reason, startDate, days, endDate)
+func CreatePaidLeave(userId primitive.ObjectID, reason string, startDate primitive.DateTime, days int, endDate primitive.DateTime, attachment string) (*db.PaidLeave, error) {
+	paidLeave := db.NewPaidLeave(userId, 0, primitive.NilObjectID, reason, startDate, days, endDate, attachment)
 	err := mgm.Coll(paidLeave).Create(paidLeave)
 
 	if err != nil {

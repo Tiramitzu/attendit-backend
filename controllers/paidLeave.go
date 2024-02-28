@@ -60,7 +60,7 @@ func CreatePaidLeave(c *gin.Context) {
 	endTime := startTime.AddDate(0, 0, requestBody.Days)
 	endDate := primitive.NewDateTimeFromTime(endTime)
 
-	paidLeave, err := services.CreatePaidLeave(user.ID, requestBody.Reason, startDate, requestBody.Days, endDate)
+	paidLeave, err := services.CreatePaidLeave(user.ID, requestBody.Reason, startDate, requestBody.Days, endDate, requestBody.Attachment)
 	if err != nil {
 		response.Message = err.Error()
 		response.SendErrorResponse(c)

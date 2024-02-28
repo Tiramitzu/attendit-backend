@@ -14,18 +14,20 @@ type PaidLeave struct {
 	EndDate          primitive.DateTime `json:"endDate" bson:"endDate"`
 	Status           int                `json:"status" bson:"status"`
 	StatusBy         primitive.ObjectID `json:"statusBy" bson:"statusBy"`
+	Attachment       string             `json:"attachment" bson:"attachment"`
 	User             *User              `json:"user" bson:"user"`
 }
 
-func NewPaidLeave(userId primitive.ObjectID, status int, statusBy primitive.ObjectID, reason string, startDate primitive.DateTime, days int, endDate primitive.DateTime) *PaidLeave {
+func NewPaidLeave(userId primitive.ObjectID, status int, statusBy primitive.ObjectID, reason string, startDate primitive.DateTime, days int, endDate primitive.DateTime, attachment string) *PaidLeave {
 	return &PaidLeave{
-		UserId:    userId,
-		Reason:    reason,
-		StartDate: startDate,
-		Days:      days,
-		EndDate:   endDate,
-		Status:    status,
-		StatusBy:  statusBy,
+		UserId:     userId,
+		Reason:     reason,
+		StartDate:  startDate,
+		Days:       days,
+		EndDate:    endDate,
+		Attachment: attachment,
+		Status:     status,
+		StatusBy:   statusBy,
 	}
 }
 

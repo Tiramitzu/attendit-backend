@@ -7,15 +7,15 @@ import (
 
 type PaidLeave struct {
 	mgm.DefaultModel `bson:",inline"`
-	UserId           primitive.ObjectID `json:"userId" bson:"userId"`
-	Reason           string             `json:"reason" bson:"reason"`
-	StartDate        primitive.DateTime `json:"startDate" bson:"startDate"`
-	Days             int                `json:"days" bson:"days"`
-	EndDate          primitive.DateTime `json:"endDate" bson:"endDate"`
-	Status           int                `json:"status" bson:"status"`
-	StatusBy         primitive.ObjectID `json:"statusBy" bson:"statusBy"`
-	Attachment       string             `json:"attachment" bson:"attachment"`
-	User             *User              `json:"user" bson:"user"`
+	UserId           primitive.ObjectID  `json:"userId" bson:"userId"`
+	Reason           string              `json:"reason" bson:"reason"`
+	StartDate        primitive.DateTime  `json:"startDate" bson:"startDate"`
+	Days             int                 `json:"days" bson:"days"`
+	EndDate          primitive.DateTime  `json:"endDate" bson:"endDate"`
+	Status           int                 `json:"status" bson:"status"`
+	StatusBy         primitive.ObjectID  `json:"statusBy" bson:"statusBy"`
+	Attachment       string              `json:"attachment" bson:"attachment"`
+	User             *UserWithoutProfPic `json:"user" bson:"user"`
 }
 
 func NewPaidLeave(userId primitive.ObjectID, status int, statusBy primitive.ObjectID, reason string, startDate primitive.DateTime, days int, endDate primitive.DateTime, attachment string) *PaidLeave {

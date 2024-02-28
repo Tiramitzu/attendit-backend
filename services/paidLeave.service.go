@@ -40,7 +40,7 @@ func GetTotalPaidLeaves() (int64, error) {
 
 func GetPaidLeaves(page int) ([]*db.PaidLeave, error) {
 	var paidLeaves []*db.PaidLeave
-	var users []*db.User
+	var users []*db.UserWithoutProfPic
 
 	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))
 	if err != nil {
@@ -72,7 +72,7 @@ func GetPaidLeaves(page int) ([]*db.PaidLeave, error) {
 
 func GetPaidLeavesByStatus(status int, page int) ([]*db.PaidLeave, error) {
 	var paidLeaves []*db.PaidLeave
-	var users []*db.User
+	var users []*db.UserWithoutProfPic
 
 	err := mgm.Coll(&db.PaidLeave{}).SimpleFind(&paidLeaves, bson.M{"status": status}, options.Find().SetSkip(int64((page-1)*25)).SetLimit(25).SetSort(bson.M{"created_at": -1}))
 	if err != nil {
@@ -82,7 +82,7 @@ func GetPaidLeavesByStatus(status int, page int) ([]*db.PaidLeave, error) {
 		return nil, errors.New("Gagal mendapatkan data cuti")
 	}
 
-	err = mgm.Coll(&db.User{}).SimpleFind(&users, bson.M{})
+	err = mgm.Coll(&db.UserWithoutProfPic{}).SimpleFind(&users, bson.M{})
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, nil
@@ -95,8 +95,6 @@ func GetPaidLeavesByStatus(status int, page int) ([]*db.PaidLeave, error) {
 		for _, user := range users {
 			if user.ID == paidLeave.UserId {
 				paidLeave.User = user
-
-				paidLeave.User.Photo = ""
 			}
 		}
 		paidLeave.Attachment = ""

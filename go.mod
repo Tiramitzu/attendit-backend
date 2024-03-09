@@ -10,6 +10,7 @@ require (
 	github.com/go-redis/cache/v8 v8.4.4
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/kamva/mgm/v3 v3.5.0
 	github.com/spf13/viper v1.18.2
 	github.com/swaggo/files v1.0.1

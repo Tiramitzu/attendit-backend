@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Kagami/go-face v0.0.0-20210630145111-0c14797b4d0e
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-co-op/gocron/v2 v2.2.5
+	github.com/go-co-op/gocron/v2 v2.2.8
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-redis/cache/v8 v8.4.4
 	github.com/go-redis/cache/v9 v9.0.0
@@ -68,7 +68,7 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect

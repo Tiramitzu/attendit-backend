@@ -7,14 +7,14 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-co-op/gocron/v2 v2.12.3
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/go-redis/cache/v9 v9.0.0
+	github.com/go-redis/cache/v8 v8.4.4
 	github.com/go-redis/cache/v9 v9.0.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/kamva/mgm/v3 v3.5.0
 	github.com/spf13/viper v1.19.0
-	github.com/swaggo/files/v2 v2.0.1
+	github.com/swaggo/files v1.0.1
 	github.com/swaggo/files/v2 v2.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
